@@ -1,0 +1,1789 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Aegis AI — Cybersecurity Awareness Platform</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#0A0A0A;
+    --panel:#141414;
+    --panel-2:#1A1A1A;
+    --panel-3:#202020;
+    --border:#2A2A2A;
+    --text:#F5F5F5;
+    --muted:#B0B0B0;
+    --danger:#FF0000;
+    --danger-dim:#330000;
+    --safe:#00FF00;
+    --safe-dim:#003300;
+    --accent:#DC143C;
+    --warn:#FF4500;
+    --body:'Inter', sans-serif;
+    --display:'Space Grotesk','Inter', sans-serif;
+    --mono:'JetBrains Mono', monospace;
+  }
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;}
+  body{
+    background:
+      radial-gradient(circle at 85% -10%, rgba(220,20,60,0.15), transparent 45%),
+      radial-gradient(circle at 0% 100%, rgba(255,0,0,0.08), transparent 40%),
+      linear-gradient(135deg, rgba(0,0,0,0.9), rgba(20,20,20,0.9)),
+      var(--bg);
+    color:var(--text);
+    font-family:var(--body);
+    min-height:100vh;
+    -webkit-font-smoothing:antialiased;
+  }
+  .mono{font-family:var(--mono);}
+  a{color:inherit;text-decoration:none;}
+  button{font-family:var(--body);cursor:pointer;}
+  /* ---------- topnav ---------- */
+  .topnav{
+    position:sticky;top:0;z-index:20;
+    background:rgba(10,10,10,0.95);
+    backdrop-filter:blur(15px);
+    border-bottom:2px solid var(--accent);
+    box-shadow:0 4px 20px rgba(220,20,60,0.1);
+  }
+  .topnav-inner{
+    max-width:1180px;margin:0 auto;padding:14px 24px;
+    display:flex;align-items:center;justify-content:space-between;gap:16px;flex-wrap:wrap;
+  }
+  .brand{display:flex;align-items:center;gap:10px;}
+  .brand-mark{
+    width:38px;height:38px;border-radius:10px;
+    background:linear-gradient(135deg,var(--accent),#FF0000);
+    display:flex;align-items:center;justify-content:center;
+    font-size:18px;font-weight:700;color:white;flex:none;font-family:var(--display);
+    box-shadow:0 4px 12px rgba(220,20,60,0.3);
+  }
+  .brand-text h1{font-family:var(--display);font-size:18px;margin:0;letter-spacing:.3px;}
+  .brand-text span{font-size:11px;color:var(--muted);font-family:var(--mono);display:block;}
+  .navlinks{display:flex;gap:6px;flex-wrap:wrap;}
+  .navlinks button{
+    background:transparent;border:1px solid transparent;color:var(--muted);
+    padding:8px 14px;border-radius:999px;font-size:14px;font-weight:600;transition:.15s;
+  }
+  .navlinks button:hover{color:var(--text);background:var(--panel-2);}
+  .navlinks button.active{color:white;background:var(--accent);box-shadow:0 0 10px rgba(220,20,60,0.4);}
+  .logout-btn{background:var(--danger)!important;color:white!important;}
+  .logout-btn:hover{background:color-mix(in srgb, var(--danger) 90%, white 10%)!important;}
+  
+  /* Auth forms */
+  input, select {
+    font-family: var(--body);
+    transition: all 0.3s ease;
+  }
+  input:focus, select:focus {
+    outline: none;
+    border-color: var(--accent);
+    box-shadow: 0 0 10px rgba(220,20,60,0.3);
+  }
+  /* ---------- layout ---------- */
+  .container{max-width:1180px;margin:0 auto;padding:36px 24px 80px;}
+  .eyebrow{font-family:var(--mono);font-size:12px;letter-spacing:2px;color:var(--accent);text-transform:uppercase;}
+  h2.section-title{font-family:var(--display);font-size:26px;margin:8px 0 4px;}
+  p.section-sub{color:var(--muted);font-size:14.5px;margin:0 0 28px;line-height:1.8;max-width:680px;}
+  /* ---------- hero ---------- */
+  .hero{display:flex;gap:36px;align-items:center;flex-wrap:wrap;padding:30px 0 50px;}
+  .hero-text{flex:1 1 420px;}
+  .hero-text h1{font-family:var(--display);font-size:40px;line-height:1.2;margin:10px 0 16px;}
+  .hero-text h1 .hl{color:var(--accent);text-shadow:0 0 10px rgba(220,20,60,0.3);}
+  .hero-text p{color:var(--muted);font-size:15.5px;line-height:1.9;max-width:520px;}
+  .hero-actions{display:flex;gap:12px;margin-top:24px;flex-wrap:wrap;}
+  .btn{
+    border:none;border-radius:10px;padding:13px 22px;font-weight:700;font-size:14.5px;
+    transition:transform .15s, box-shadow .15s; display:inline-flex;align-items:center;gap:8px;
+  }
+  .btn:active{transform:scale(.97);}
+  .btn-primary{background:var(--accent);color:white;font-weight:700;box-shadow:0 4px 15px rgba(220,20,60,0.2);}
+  .btn-primary:hover{box-shadow:0 6px 25px rgba(220,20,60,0.4);transform:translateY(-2px);}
+  .btn-safe{background:var(--safe);color:#000000;font-weight:700;}
+  .btn-safe:hover{box-shadow:0 0 0 3px rgba(0,255,0,.25);transform:translateY(-2px);}
+  .btn-danger{background:var(--danger);color:white;font-weight:700;}
+  .btn-danger:hover{box-shadow:0 0 0 3px rgba(255,0,0,.25);transform:translateY(-2px);}
+  .btn-ghost{background:var(--panel-2);color:var(--text);border:1px solid var(--border);}
+  .btn-ghost:hover{border-color:var(--accent);background:var(--panel-3);transform:translateY(-1px);}
+  .btn:disabled{opacity:.45;cursor:not-allowed;}
+  .hero-console{
+    flex:1 1 360px;min-width:300px;background:var(--panel);border:2px solid var(--accent);
+    border-radius:16px;padding:18px;font-family:var(--mono);font-size:12.5px;color:var(--safe);
+    box-shadow:0 30px 60px -30px rgba(0,0,0,.8), 0 0 30px rgba(220,20,60,0.1);
+  }
+  .hero-console .dot-row{display:flex;gap:6px;margin-bottom:14px;}
+  .hero-console .dot{width:10px;height:10px;border-radius:50%;}
+  .hero-console .dot.r{background:#FF0000;} .hero-console .dot.y{background:#FF4500;} .hero-console .dot.g{background:#00FF00;}
+  .hero-console pre{margin:0;white-space:pre-wrap;line-height:1.7;color:#00FF88;}
+  .hero-console .muted-line{color:var(--muted);}
+  /* feature cards */
+  .feat-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:16px;margin-top:10px;}
+  .feat-card{background:var(--panel);border:1px solid var(--border);border-radius:14px;padding:18px;transition:all 0.3s ease;}
+  .feat-card:hover{border-color:var(--accent);transform:translateY(-2px);box-shadow:0 8px 25px rgba(220,20,60,0.1);}
+  .feat-card .ic{font-size:22px;}
+  .feat-card h3{font-size:15px;margin:10px 0 6px;}
+  .feat-card p{font-size:13px;color:var(--muted);line-height:1.7;margin:0;}
+  /* choice cards (home) */
+  .path-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:18px;margin-top:18px;}
+  .path-card{
+    background:var(--panel);border:1px solid var(--border);border-radius:18px;padding:26px;
+    transition:.18s; cursor:pointer;
+  }
+  .path-card:hover{border-color:var(--accent);transform:translateY(-3px);box-shadow:0 10px 30px rgba(220,20,60,0.15);}
+  .path-card .ic{font-size:30px;}
+  .path-card h3{font-family:var(--display);font-size:19px;margin:14px 0 8px;}
+  .path-card p{color:var(--muted);font-size:13.5px;line-height:1.8;margin:0 0 14px;}
+  .path-card .go{color:var(--accent);font-weight:700;font-size:13px;}
+  /* dept grid */
+  .dept-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:16px;}
+  .dept-card{background:var(--panel);border:1px solid var(--border);border-radius:16px;padding:20px;cursor:pointer;transition:.15s;}
+  .dept-card:hover{border-color:var(--accent);box-shadow:0 8px 25px rgba(220,20,60,0.1);transform:translateY(-2px);}
+  .dept-card .top-row{display:flex;justify-content:space-between;align-items:flex-start;}
+  .dept-card .ic{font-size:26px;}
+  .dept-card h4{font-size:16px;margin:12px 0 4px;}
+  .dept-card p{font-size:12.5px;color:var(--muted);margin:0;line-height:1.7;}
+  .risk-pill{font-family:var(--mono);font-size:11px;font-weight:700;padding:4px 9px;border-radius:999px;}
+  .risk-na{background:#22304B;color:var(--muted);}
+  .risk-low{background:var(--safe-dim);color:var(--safe);}
+  .risk-mid{background:#3A331A;color:var(--warn);}
+  .risk-high{background:var(--danger-dim);color:var(--danger);}
+  /* sim panel */
+  .breadcrumb{font-size:13px;color:var(--muted);margin-bottom:14px;}
+  .breadcrumb button{background:none;border:none;color:var(--accent);font-weight:700;font-size:13px;padding:0;}
+  .sim-grid{display:grid;grid-template-columns:1.3fr .9fr;gap:24px;align-items:start;}
+  @media (max-width:840px){.sim-grid{grid-template-columns:1fr;}}
+  .panel{background:var(--panel);border:1px solid var(--border);border-radius:16px;padding:22px;box-shadow:0 4px 15px rgba(0,0,0,0.2);}
+  .diff-row{display:flex;gap:8px;margin:14px 0 18px;}
+  .diff-btn{background:var(--panel-2);border:1px solid var(--border);color:var(--muted);padding:8px 16px;border-radius:9px;font-size:13px;font-weight:600;}
+  .diff-btn.active{background:var(--accent);color:#0B1120;border-color:var(--accent);}
+  .console-loading{
+    font-family:var(--mono);background:#000000;border:2px solid var(--accent);border-radius:12px;
+    padding:18px;color:var(--safe);font-size:13px;min-height:90px;box-shadow:0 0 20px rgba(220,20,60,0.1);
+  }
+  .console-loading .ln{margin-bottom:6px;color:#00FF88;}
+  .cursor{display:inline-block;width:7px;height:14px;background:var(--safe);margin-left:4px;animation:blink 1s steps(1) infinite;vertical-align:middle;}
+  @keyframes blink{50%{opacity:0;}}
+  /* message mocks */
+  .msg-mock{border-radius:12px;overflow:hidden;border:1px solid var(--border);}
+  .mock-head{padding:12px 16px;font-size:12.5px;display:flex;justify-content:space-between;background:var(--panel-3);color:var(--muted);}
+  .mock-body{padding:18px 16px;background:#0A0A0A;font-size:14.5px;line-height:1.9;}
+  .mock-email .mock-head{flex-direction:column;gap:4px;align-items:flex-start;}
+  .mock-email .from{color:var(--text);font-weight:700;font-size:13.5px;}
+  .mock-email .from .addr{color:var(--muted);font-weight:400;font-family:var(--mono);}
+  .mock-email .subject{font-size:15px;font-weight:700;color:var(--text);padding:10px 16px 0;background:#0A0A0A;}
+  .mock-wa{background:#0a1612;}
+  .mock-wa .mock-head{background:#1f3b32;color:#cfe9df;}
+  .mock-wa .mock-body{background:#0a1612;}
+  .wa-bubble{background:#1f3b32;border-radius:10px;padding:12px 14px;display:inline-block;max-width:90%;}
+  .mock-login .mock-head{background:#241a1a;color:#e7b3b3;}
+  .mock-login .mock-body{background:#0A0A0A;text-align:center;padding:26px 16px;}
+  .fake-form{display:inline-block;background:var(--panel-3);border:1px solid var(--border);border-radius:10px;padding:18px 26px;margin-top:14px;}
+  .fake-form input{display:block;width:220px;margin:8px auto;padding:9px 10px;border-radius:6px;border:1px solid var(--border);background:#0A0A0A;color:var(--muted);font-size:13px;}
+  .fake-form .fbtn{margin-top:6px;background:var(--accent);color:white;border:none;border-radius:6px;padding:8px 0;width:236px;font-weight:700;font-size:13px;}
+  .url-line{font-family:var(--mono);display:inline-block;color:var(--danger);font-size:12.5px;margin-top:8px;}
+  /* classify buttons */
+  .classify-row{display:flex;gap:12px;margin-top:18px;}
+  .classify-row .btn{flex:1;justify-content:center;}
+  /* flags */
+  .flag-list{display:flex;flex-direction:column;gap:8px;margin:14px 0;}
+  .flag-item{display:flex;align-items:center;gap:10px;background:var(--panel-2);border:1px solid var(--border);border-radius:9px;padding:10px 12px;font-size:13.5px;cursor:pointer;}
+  .flag-item input{accent-color:var(--accent);width:16px;height:16px;}
+  /* result */
+  .result-head{display:flex;align-items:center;gap:10px;margin-bottom:10px;flex-wrap:wrap;}
+  .result-badge{font-size:13px;font-weight:800;padding:6px 14px;border-radius:999px;}
+  .result-badge.good{background:var(--safe-dim);color:var(--safe);}
+  .result-badge.bad{background:var(--danger-dim);color:var(--danger);}
+  .score-num{font-family:var(--mono);font-size:13px;color:var(--muted);}
+  .flag-check{font-size:13px;margin:4px 0;}
+  .flag-check.hit{color:var(--safe);} .flag-check.miss{color:var(--warn);} .flag-check.wrong{color:var(--danger);}
+  .explain-box{background:var(--panel-2);border:1px solid var(--border);border-radius:10px;padding:14px;font-size:13.5px;line-height:1.8;margin-top:12px;color:var(--text);}
+  .explain-box b{color:var(--accent);}
+  /* side info panel */
+  .side-stat{display:flex;justify-content:space-between;padding:9px 0;border-bottom:1px dashed var(--border);font-size:13.5px;}
+  .side-stat:last-child{border-bottom:none;}
+  .side-stat span.v{font-family:var(--mono);color:var(--accent);}
+  /* dashboard */
+  .kpi-row{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:14px;margin-bottom:24px;}
+  .kpi{background:var(--panel);border:1px solid var(--border);border-radius:14px;padding:18px;box-shadow:0 4px 15px rgba(0,0,0,0.2);}
+  .kpi .num{font-family:var(--display);font-size:28px;}
+  .kpi .lbl{font-size:12px;color:var(--muted);margin-top:4px;}
+  .dash-table{width:100%;border-collapse:collapse;font-size:13.5px;}
+  .dash-table th{text-align:left;color:var(--muted);font-size:12px;font-weight:600;padding:10px 12px;border-bottom:1px solid var(--border);}
+  .dash-table td{padding:12px;border-bottom:1px solid var(--border);vertical-align:middle;}
+  .bar-track{background:var(--panel-2);border-radius:6px;height:8px;width:140px;overflow:hidden;display:inline-block;}
+  .bar-fill{height:100%;border-radius:6px;}
+  .status-tag{font-size:11px;font-weight:700;padding:3px 9px;border-radius:999px;}
+  /* quiz */
+  .checklist{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:14px;margin:18px 0 26px;}
+  .check-card{background:var(--panel);border:1px solid var(--border);border-radius:14px;padding:16px;box-shadow:0 4px 15px rgba(0,0,0,0.2);}
+  .check-card .ic{font-size:20px;}
+  .check-card h4{font-size:14px;margin:8px 0 6px;}
+  .check-card p{font-size:12.5px;color:var(--muted);line-height:1.7;margin:0;}
+  .quiz-q{background:var(--panel);border:1px solid var(--border);border-radius:14px;padding:16px 18px;margin-bottom:14px;box-shadow:0 4px 15px rgba(0,0,0,0.2);}
+  .quiz-q h4{font-size:14.5px;margin:0 0 12px;}
+  .quiz-opt{display:flex;align-items:center;gap:10px;padding:9px 10px;border-radius:8px;font-size:13.5px;margin-bottom:6px;cursor:pointer;background:var(--panel-2);}
+  .quiz-opt input{accent-color:var(--safe);}
+  /* leaderboard */
+  .lb-row{display:flex;align-items:center;gap:14px;background:var(--panel);border:1px solid var(--border);border-radius:12px;padding:12px 16px;margin-bottom:8px;box-shadow:0 4px 15px rgba(0,0,0,0.2);}
+  .lb-rank{font-family:var(--display);font-size:16px;color:var(--muted);width:24px;}
+  .lb-name{flex:1;font-weight:700;font-size:14px;}
+  .lb-points{font-family:var(--mono);color:var(--safe);font-size:13px;}
+  .lb-row.me{border-color:var(--accent);background:linear-gradient(90deg, rgba(220,20,60,.12), transparent);box-shadow:0 0 20px rgba(220,20,60,0.2);}
+  .badge-pill{font-size:11px;padding:3px 8px;border-radius:999px;background:var(--panel-3);color:var(--warn);margin-right:6px;font-weight:700;}
+  /* error */
+  .error-box{background:var(--danger-dim);border:1px solid var(--danger);color:#FFD7DA;border-radius:10px;padding:14px;font-size:13.5px;margin-top:14px;}
+  footer{text-align:center;color:var(--muted);font-size:12px;padding:30px 0;border-top:2px solid var(--accent);margin-top:40px;background:linear-gradient(180deg, transparent, rgba(220,20,60,0.03));}
+</style>
+</head>
+<body>
+<div id="app"></div>
+
+<script src="api.js"></script>
+<script>
+/* ============ DATA ============ */
+const DEPARTMENTS = [
+  {key:'accounting', name:'Accounting', icon:'💰', desc:'Fake invoices and urgent wire-transfer requests'},
+  {key:'hr', name:'Human Resources', icon:'🗂️', desc:'Resumes and attachments carrying malware'},
+  {key:'it', name:'IT', icon:'🖥️', desc:'Credential theft and privilege escalation attempts'},
+  {key:'marketing', name:'Marketing', icon:'📣', desc:'Fake messages from ad agencies and partners'},
+  {key:'sales', name:'Sales', icon:'📈', desc:'Fraudulent deals and contracts from fake prospects'},
+];
+const SECTORS = [
+  {key:'banking', name:'Banking & Transfers', icon:'🏦'},
+  {key:'shopping', name:'Online Shopping', icon:'🛍️'},
+  {key:'social', name:'Social Media Accounts', icon:'📱'},
+];
+const DIFFICULTIES = [{key:'easy',name:'Easy'},{key:'medium',name:'Medium'},{key:'hard',name:'Hard'}];
+
+const DECOY_FLAGS = [
+  'Low-quality or distorted company logo',
+  'Email domain does not match the official company domain',
+  'Urgent request creating psychological pressure for a fast decision',
+  'Strange or shortened link that hides the real destination',
+  'Obvious spelling or grammar mistakes in the text',
+  'Request for sensitive info (password or OTP) via message',
+  'Threat of account closure or financial loss if not acted on immediately',
+  'Attachment in an unexpected format for this type of sender',
+  'Unknown phone number or account outside official channels',
+  'Financial offer or gain that feels disproportionate to the context',
+];
+
+const SENIOR_QUIZ = [
+  {q:'Someone calls claiming to be from your bank and asks for the OTP code sent to your phone. What is correct?',
+   opts:['Give them the code right away since it is the bank','Refuse to share the code with anyone, and call the bank back on its official number','Send the code after they confirm my full name','Wait a minute, then send the code'], correct:1},
+  {q:'You get a WhatsApp message from an unknown number saying you won a prize and asking you to click a link to claim it. What do you do?',
+   opts:['Click the link right away to claim the prize','Delete the message and never click links from unknown sources','Reply and ask for more details','Forward it to friends so they can benefit too'], correct:1},
+  {q:'What is the best way to protect your Facebook or WhatsApp account?',
+   opts:['Use the same password for every account','Turn on two-factor authentication and use a strong, unique password','Write the password in a notebook next to the phone','Share the password with your children for convenience'], correct:1},
+  {q:'An email claiming to be from the electric company demands immediate payment via a link to avoid disconnection, and it has obvious language mistakes. What is correct?',
+   opts:['Pay immediately through the link to avoid disconnection','Call the electric company on its official number to verify before paying anything','Reply to the email to ask for details','Ignore the message and take no action at all'], correct:1},
+  {q:'Which sign helps you spot a scam message?',
+   opts:['A high-quality company logo','Urgency and psychological pressure to act fast, paired with a strange link','The message arriving during normal business hours','The sender using a name the person actually recognizes'], correct:1},
+];
+
+const CHECKLIST = [
+  {ic:'🔗', h:'Never click unknown links', p:'Any link from an unknown number or email should be verified first — never opened directly.'},
+  {ic:'🔑', h:'Never share your OTP', p:'No legitimate organization will ever ask you for your verification code over phone or chat.'},
+  {ic:'🚩', h:'Recognize scam messages', p:'Psychological pressure, urgency, and offers that seem too good to be true are common red flags.'},
+  {ic:'🛡️', h:'Protect your accounts', p:'Use a strong, unique password for every account, and always turn on two-factor authentication.'},
+];
+
+/* ============ STATE ============ */
+const state = {
+  view:'home',
+  auth: {
+    isLoggedIn: false,
+    user: null,
+    loading: false,
+    error: null,
+    registerType: null  // 'organization' or 'individual'
+  },
+  org:{
+  activeDept:null,
+  difficulty:'medium',
+  loading:false,
+  scenario:null,
+  stage:'classify',
+  userClass:null,
+  selectedFlags:[],
+  result:null,
+  error:null,
+  data:null,
+  depts: Object.fromEntries(
+    DEPARTMENTS.map(d => [
+      d.key,
+      {attempts:0, scoreSum:0, correct:0}
+    ])
+  )
+},
+  ind:{ mode:null, sector:'banking', difficulty:'medium', loading:false, scenario:null, stage:'classify', userClass:null, selectedFlags:[], result:null, error:null,
+        points:0, quizStarted:false, quizAnswers:{}, quizResult:null },
+  leaderboard:[ {name:'Mona Abdallah', points:260}, {name:'Youssef El-Sherif', points:140}, {name:'Sara Kamal', points:60} ],
+};
+
+/* ============ HELPERS ============ */
+function shuffle(arr){ const a=[...arr]; for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1)); [a[i],a[j]]=[a[j],a[i]];} return a; }
+function riskClass(risk){ if(risk===null) return 'risk-na'; if(risk<40) return 'risk-low'; if(risk<70) return 'risk-mid'; return 'risk-high'; }
+function riskLabel(risk){ if(risk===null) return 'No data'; return 'Risk '+risk+'%'; }
+function deptRisk(stats){ if(stats.attempts===0) return null; const avgScore = stats.scoreSum/stats.attempts; return Math.round(100-avgScore); }
+function badgeFor(points){ if(points>=300) return 'Gold 🥇'; if(points>=150) return 'Silver 🥈'; if(points>=50) return 'Bronze 🥉'; return null; }
+
+/* ============ ROLE HELPERS ============ */
+function isOrgAdmin() {
+  return state.auth.isLoggedIn && (state.auth.user?.role === 'organization_admin' || state.auth.user?.role === 'organization');
+}
+
+function isIndividual() {
+  return state.auth.isLoggedIn && state.auth.user?.role === 'individual';
+}
+
+function isEmployee() {
+  return state.auth.isLoggedIn && state.auth.user?.role === 'employee';
+}
+
+function isGuest() {
+  return !state.auth.isLoggedIn;
+}
+
+function getOrganizationName() {
+  if (!state.auth.user) return 'Organization not configured yet';
+  return state.auth.user.organization_name || 
+         state.auth.user.organization?.organization_name || 
+         state.auth.user.organizationName || 
+         'Organization not configured yet';
+}
+
+async function callAI(label, difficultyKey){
+  const deptMap = {
+    'Accounting': 'accounting',
+    'Human Resources': 'hr',
+    'HR': 'hr',
+    'IT': 'it',
+    'Marketing': 'marketing',
+    'Sales': 'sales'
+  };
+
+  const department = deptMap[label] || null;
+
+  const response = await fetch('http://127.0.0.1:8000/api/scenarios/generate', {
+    method: 'POST',
+    headers: {'Content-Type': 'application/json'},
+    body: JSON.stringify({
+      department: department,
+      sector: department ? null : 'banking',
+      difficulty: difficultyKey
+    })
+  });
+
+  if(!response.ok) {
+    throw new Error('Backend scenario generation failed');
+  }
+
+  return await response.json();
+}
+
+function scoreScenario(scenario, userClass, selectedFlags){
+  const correctClass = (userClass === scenario.is_phishing);
+  let score;
+  if(!scenario.is_phishing){
+    score = correctClass ? 100 : 15;
+  } else if(!correctClass){
+    score = 10;
+  } else {
+    const trueSet = scenario.red_flags;
+    const correctSelected = selectedFlags.filter(f=>trueSet.includes(f)).length;
+    const wrongSelected = selectedFlags.filter(f=>!trueSet.includes(f)).length;
+    const ratio = trueSet.length ? correctSelected/trueSet.length : 1;
+    score = Math.round(50 + ratio*50 - wrongSelected*5);
+    score = Math.max(40, Math.min(100, score));
+  }
+  return { correctClass, score };
+}
+
+/* ============ NAV ============ */
+function go(view){ 
+  state.view = view; 
+  render(); 
+  window.scrollTo({top:0,behavior:'smooth'}); 
+
+  if (view === 'dash' && isOrgAdmin()) {
+  loadMyOrganization().then(() => render());
+}
+  
+  // Special handling for employees page - always refresh data
+  if (view === 'employees' && isOrgAdmin()) {
+    setTimeout(() => {
+      loadEmployees().then(employees => {
+        renderEmployeesPageWithData(employees);
+      }).catch(() => {
+        renderEmployeesPageWithData([]);
+      });
+    }, 100); // Small delay to ensure DOM is ready
+  }
+}
+
+/* ============ RENDER: SHELL ============ */
+function render(){
+  const app = document.getElementById('app');
+  app.innerHTML = `
+    <div class="topnav"><div class="topnav-inner">
+      <div class="brand">
+        <div class="brand-mark">A</div>
+        <div class="brand-text"><h1>Aegis AI</h1><span>Cybersecurity Awareness Platform</span></div>
+      </div>
+      <div class="navlinks">
+        ${navBtn('home','Home')}
+        ${isOrgAdmin() ? navBtn('dash','Org Dashboard') : ''}
+        ${isOrgAdmin() ? navBtn('org','Departments') : ''}
+        ${isOrgAdmin() ? navBtn('employees','Employees') : ''}
+        ${isIndividual() ? navBtn('ind','My Training') : ''}
+        ${isEmployee() ? navBtn('employee-training','My Training') : ''}
+        ${isEmployee() ? navBtn('employee-progress','My Progress') : ''}
+        ${navBtn('lb','Leaderboard')}
+        ${state.auth.isLoggedIn ? 
+          `<button onclick="logout()" class="logout-btn">Logout (${state.auth.user?.name || 'User'})</button>` : 
+          navBtn('login','Login')
+        }
+      </div>
+    </div></div>
+    <div class="container">${renderView()}</div>
+    <footer>Graduation project — AI-powered cybersecurity awareness platform · Aegis AI</footer>
+  `;
+}
+function navBtn(key,label){ return `<button class="${state.view===key?'active':''}" onclick="go('${key}')">${label}</button>`; }
+
+function renderView() {
+  // Route protection - redirect to login if not authenticated
+  const protectedRoutes = [
+    'org',
+    'org-sim',
+    'dash',
+    'ind',
+    'ind-tech',
+    'ind-senior',
+    'employees',
+    'invitations',
+    'employee-training',
+    'employee-progress'
+  ];
+
+  if (
+    protectedRoutes.includes(state.view) &&
+    !state.auth.isLoggedIn
+  ) {
+    state.view = 'login';
+  }
+
+  // Join Organization is only for guests
+  if (
+    state.view === 'join-org' &&
+    state.auth.isLoggedIn
+  ) {
+    state.view = 'home';
+  }
+
+  // Role-based access control
+  if (state.auth.isLoggedIn) {
+    const orgPages = [
+      'org',
+      'org-sim',
+      'dash',
+      'employees',
+      'invitations'
+    ];
+
+    if (
+      orgPages.includes(state.view) &&
+      !isOrgAdmin()
+    ) {
+      state.view = 'home';
+    }
+
+    const indPages = [
+      'ind',
+      'ind-tech',
+      'ind-senior'
+    ];
+
+    if (
+      indPages.includes(state.view) &&
+      !isIndividual()
+    ) {
+      state.view = 'home';
+    }
+
+    const empPages = [
+      'employee-training',
+      'employee-progress'
+    ];
+
+    if (
+      empPages.includes(state.view) &&
+      !isEmployee()
+    ) {
+      state.view = 'home';
+    }
+  }
+
+  switch (state.view) {
+    case 'home':
+      return renderHome();
+
+    case 'login':
+      return renderLogin();
+
+    case 'register':
+      return renderRegister();
+
+    case 'join-org':
+      return renderJoinOrganization();
+
+    case 'org':
+      return renderOrgHome();
+
+    case 'org-sim':
+      return renderOrgSim();
+
+    case 'dash':
+      return renderDashboard();
+
+    case 'employees':
+      return renderEmployeesPage();
+
+    case 'invitations':
+      return renderInvitationsPage();
+
+    case 'ind':
+      return renderIndHome();
+
+    case 'ind-tech':
+      return renderIndSim();
+
+    case 'ind-senior':
+      return renderIndSenior();
+
+    case 'employee-training':
+      return renderEmployeeTrainingPage();
+
+    case 'employee-progress':
+      return renderEmployeeProgressPage();
+
+    case 'lb':
+      return renderLeaderboard();
+
+    default:
+      return renderHome();
+  }
+}
+
+/* ============ HOME ============ */
+function renderHome(){
+  // If logged in, show role-specific dashboard preview
+  if (isOrgAdmin()) {
+    return `
+      <div style="max-width:800px;margin:40px auto;text-align:center;">
+        <h1 style="font-family:var(--display);font-size:32px;margin-bottom:16px;">Welcome back, ${state.auth.user?.name}!</h1>
+        <p style="color:var(--muted);font-size:16px;margin-bottom:8px;">Organization: <strong style="color:var(--accent);">${getOrganizationName()}</strong></p>
+        <p style="color:var(--muted);font-size:14px;margin-bottom:32px;">Manage your organization's cybersecurity training</p>
+        
+        <div style="display:flex;gap:16px;justify-content:center;flex-wrap:wrap;margin-bottom:40px;">
+          <button class="btn btn-primary" onclick="go('dash')">📊 Organization Dashboard</button>
+          <button class="btn btn-safe" onclick="go('org')">🏢 Train Departments</button>
+          <button class="btn btn-ghost" onclick="go('lb')">🏆 View Leaderboard</button>
+        </div>
+        
+        <div style="background:var(--panel-2);border:1px solid var(--border);border-radius:12px;padding:24px;text-align:left;">
+          <h3 style="margin:0 0 16px;font-size:18px;">Quick Stats</h3>
+          <p style="color:var(--muted);margin:0;">Your organization's security training overview will appear here once departments start training.</p>
+        </div>
+      </div>
+    `;
+  }
+  
+  if (isIndividual()) {
+    return `
+      <div style="max-width:600px;margin:40px auto;text-align:center;">
+        <h1 style="font-family:var(--display);font-size:32px;margin-bottom:16px;">Welcome back, ${state.auth.user?.name}!</h1>
+        <p style="color:var(--muted);font-size:14px;margin-bottom:32px;">Continue your cybersecurity training journey</p>
+        
+        <div style="display:flex;gap:16px;justify-content:center;flex-wrap:wrap;margin-bottom:40px;">
+          <button class="btn btn-primary" onclick="go('ind')">🎯 Continue Training</button>
+          <button class="btn btn-ghost" onclick="go('lb')">🏆 View Leaderboard</button>
+        </div>
+        
+        <div style="background:var(--panel-2);border:1px solid var(--border);border-radius:12px;padding:24px;text-align:left;">
+          <h3 style="margin:0 0 16px;font-size:18px;">Your Progress</h3>
+          <p style="margin:0 0 8px;">Points: <strong style="color:var(--safe);">${state.ind.points}</strong></p>
+          <p style="color:var(--muted);margin:0;">Badge: ${badgeFor(state.ind.points) || 'Keep training to earn your first badge!'}</p>
+        </div>
+      </div>
+    `;
+  }
+  
+  if (isEmployee()) {
+    return `
+      <div style="max-width:600px;margin:40px auto;text-align:center;">
+        <h1 style="font-family:var(--display);font-size:32px;margin-bottom:16px;">Welcome, ${state.auth.user?.name}!</h1>
+        <p style="color:var(--muted);font-size:14px;margin-bottom:8px;">Department: <strong>${state.auth.user?.department || 'Not assigned'}</strong></p>
+        <p style="color:var(--muted);font-size:14px;margin-bottom:32px;">Organization: <strong>${getOrganizationName()}</strong></p>
+        
+        <div style="display:flex;gap:16px;justify-content:center;flex-wrap:wrap;margin-bottom:40px;">
+          <button class="btn btn-primary" onclick="go('employee-training')">🎯 Continue My Training</button>
+          <button class="btn btn-ghost" onclick="go('employee-progress')">📊 View My Progress</button>
+        </div>
+      </div>
+    `;
+  }
+  
+  // Guest user - show original hero
+  return `
+  <div class="hero">
+    <div class="hero-text">
+      <div class="eyebrow">Wa3eny - AI-Powered Security Awareness</div>
+      <h1>Train your team and community to spot <span class="hl">phishing attacks</span> before the damage is done</h1>
+      <p>An awareness platform that uses AI to generate realistic attack scenarios tailored to every job role and sector, tests employees and individuals hands-on, and measures organizational risk in real time.</p>
+      <div class="hero-actions">
+  <button class="btn btn-primary" onclick="startOrganization()">
+    🏢 Start as an Organization
+  </button>
+
+  <button class="btn btn-ghost" onclick="startIndividual()">
+    🙋 Start as an Individual
+  </button>
+
+  <button class="btn btn-safe" onclick="joinOrganization()">
+    👥 Join an Organization
+  </button>
+</div>
+    </div>
+    <div class="hero-console">
+      <div class="dot-row"><span class="dot r"></span><span class="dot y"></span><span class="dot g"></span></div>
+      <pre>$ wa3eny-ai --generate-scenario
+<span class="muted-line">→ department: accounting</span>
+<span class="muted-line">→ difficulty: medium</span>
+<span class="muted-line">→ sector: banking</span>
+[OK] scenario generated (channel: email)
+[OK] red_flags: 3 detected
+[OK] risk_score: recalculating...
+status: <span style="color:#FFB454">awaiting employee response</span><span class="cursor"></span></pre>
+    </div>
+  </div>
+
+  <div class="eyebrow">How the platform works</div>
+  <h2 class="section-title">One engine, three capabilities</h2>
+  <p class="section-sub">Every scenario is generated live by AI based on the role, sector, and difficulty level — so no two scenarios are ever the same.</p>
+  <div class="feat-grid">
+    <div class="feat-card"><div class="ic">🧠</div><h3>AI-generated scenarios</h3><p>Fake emails, WhatsApp chats, and login pages built specifically for each job role and experience level.</p></div>
+    <div class="feat-card"><div class="ic">🎯</div><h3>Simulation & instant feedback</h3><p>Users judge the message, pick the suspicious signs, and get an instant explanation of what they got right and wrong.</p></div>
+    <div class="feat-card"><div class="ic">📊</div><h3>Risk assessment & gamification</h3><p>A dashboard calculates risk per department, while a points-and-badges system motivates people to spread awareness.</p></div>
+  </div>
+
+  <div style="height:60px"></div>
+
+  <div class="eyebrow">Our Services</div>
+
+  <h2 class="section-title">Explore our cybersecurity tools</h2>
+
+  <p class="section-sub">
+    Use practical security tools designed to help you understand threats
+    and improve your cybersecurity awareness.
+  </p>
+
+  <div class="feat-grid">
+
+    <div class="feat-card">
+      <div class="ic">🛡️</div>
+
+      <h3>Intrusion Detection System</h3>
+
+      <p>
+        Monitor network activity and explore how suspicious traffic
+        and cyberattacks can be detected in real time.
+      </p>
+
+      <button
+        class="btn btn-primary"
+        style="margin-top:16px;"
+        onclick="openIDSService()"
+      >
+        Open IDS Service →
+      </button>
+    </div>
+
+    <div class="feat-card" style="opacity:0.65;">
+      <div class="ic">🔐</div>
+
+      <h3>Password Security Checker</h3>
+
+      <p>
+        Test password strength and learn how to create more secure passwords.
+      </p>
+
+      <button
+        class="btn btn-ghost"
+        style="margin-top:16px;"
+        disabled
+      >
+        Coming Soon
+      </button>
+    </div>
+
+    <div class="feat-card" style="opacity:0.65;">
+      <div class="ic">📧</div>
+
+      <h3>Phishing Analyzer</h3>
+
+      <p>
+        Analyze suspicious messages and discover common phishing warning signs.
+      </p>
+
+      <button
+        class="btn btn-ghost"
+        style="margin-top:16px;"
+        disabled
+      >
+        Coming Soon
+      </button>
+    </div>
+
+  </div>
+
+  <div style="height:36px"></div>
+  <div class="eyebrow">Paths</div>
+  <h2 class="section-title">Choose where to start</h2>
+  <div class="path-card" onclick="joinOrganization()">
+  <div class="ic">👥</div>
+  <h3>Join an Organization</h3>
+  <p>
+    Join your company using its organization code and start training with
+    scenarios tailored to your department.
+  </p>
+  <div class="go">Join as an employee →</div>
+</div>
+  `;
+}
+
+function openIDSService() {
+  window.open('ids/dashboard.html', '_blank');
+}
+
+/* ============ ORG: HOME ============ */
+function renderOrgHome(){
+  const user = state.auth.user;
+  const userInfo = user ? `
+    <div style="background:var(--panel-2);border:1px solid var(--border);border-radius:10px;padding:16px;margin-bottom:24px;">
+      <h3 style="margin:0 0 8px;font-size:16px;color:var(--text);">Welcome, ${user.name}</h3>
+      <p style="margin:0;color:var(--muted);font-size:14px;">
+        Organization: <strong style="color:var(--accent);">${user.organization_name || 'Not specified'}</strong>
+      </p>
+    </div>
+  ` : '';
+
+  const cards = DEPARTMENTS.map(d=>{
+    const stats = state.org.depts[d.key];
+    const risk = deptRisk(stats);
+    return `<div class="dept-card" onclick="openDept('${d.key}')">
+      <div class="top-row"><div class="ic">${d.icon}</div><span class="risk-pill ${riskClass(risk)}">${riskLabel(risk)}</span></div>
+      <h4>${d.name}</h4><p>${d.desc}</p>
+    </div>`;
+  }).join('');
+  return `
+    <div class="eyebrow">Organizations</div>
+    <h2 class="section-title">Choose a department to start training</h2>
+    <p class="section-sub">Each department receives a different AI-generated attack type that fits how it actually works. Click a department to begin.</p>
+    ${userInfo}
+    <div class="dept-grid">${cards}</div>
+    <div style="margin-top:24px"><button class="btn btn-ghost" onclick="go('dash')">📊 View the full org dashboard</button></div>
+  `;
+}
+function openDept(key){ state.org.activeDept=key; state.org.scenario=null; state.org.stage='classify'; state.org.userClass=null; state.org.selectedFlags=[]; state.org.result=null; state.org.error=null; go('org-sim'); }
+
+/* ============ SHARED: simulation engine (org + individual-tech) ============ */
+function loadingHTML(){
+  return `<div class="console-loading">
+    <div class="ln">$ ai-engine --generate-scenario</div>
+    <div class="ln">analyzing role profile...</div>
+    <div class="ln">drafting message content...</div>
+    <div class="ln">status: generating<span class="cursor"></span></div>
+  </div>`;
+}
+
+function renderMsgMock(s){
+  if(s.channel==='email'){
+    return `<div class="msg-mock mock-email">
+      <div class="mock-head">
+        <div class="from">${s.sender_name} <span class="addr">&lt;${s.sender_handle}&gt;</span></div>
+        <div>To: you</div>
+      </div>
+      <div class="subject">${s.title}</div>
+      <div class="mock-body">${s.message}</div>
+    </div>`;
+  }
+  if(s.channel==='whatsapp'){
+    return `<div class="msg-mock mock-wa">
+      <div class="mock-head"><div>💬 ${s.sender_name} — ${s.sender_handle}</div><div>now</div></div>
+      <div class="mock-body"><div class="wa-bubble">${s.message}</div></div>
+    </div>`;
+  }
+  return `<div class="msg-mock mock-login">
+    <div class="mock-head"><div>⚠️ Link in a message from ${s.sender_name}</div><div>${s.sender_handle}</div></div>
+    <div class="mock-body">
+      <p>${s.message}</p>
+      <div class="url-line">${s.sender_handle}</div>
+      <div class="fake-form">
+        <div style="font-size:13px;font-weight:700">${s.title}</div>
+        <input placeholder="Email" disabled>
+        <input placeholder="Password" type="password" disabled>
+        <button class="fbtn" disabled>Log in</button>
+      </div>
+    </div>
+  </div>`;
+}
+
+function buildFlagOptions(s){
+  const decoyPool = DECOY_FLAGS.filter(f=>!s.red_flags.includes(f));
+  const decoys = shuffle(decoyPool).slice(0,4);
+  return shuffle([...s.red_flags, ...decoys]);
+}
+
+async function startSim(ctx){
+  const S = ctx==='org' ? state.org : state.ind;
+  S.loading=true; S.scenario=null; S.error=null; S.stage='classify'; S.userClass=null; S.selectedFlags=[]; S.result=null;
+  render();
+  try{
+    const label = ctx==='org'
+      ? DEPARTMENTS.find(d=>d.key===S.activeDept).name
+      : SECTORS.find(s=>s.key===S.sector).name + ' (individual)';
+    const scenario = await callAI(label, S.difficulty);
+    S.scenario = scenario;
+    S._flagOptions = buildFlagOptions(scenario);
+  }catch(e){
+    S.error = 'Could not generate a scenario right now. Please try again. ('+e.message+')';
+  }
+  S.loading=false;
+  render();
+}
+
+function classify(ctx, val){
+  const S = ctx==='org' ? state.org : state.ind;
+  S.userClass = val;
+  if(val===true){ S.stage='flags'; }
+  else { finishSim(ctx); }
+  render();
+}
+function toggleFlag(ctx, flag){
+  const S = ctx==='org' ? state.org : state.ind;
+  const i = S.selectedFlags.indexOf(flag);
+  if(i>=0) S.selectedFlags.splice(i,1); else S.selectedFlags.push(flag);
+  render();
+}
+function finishSim(ctx){
+  const S = ctx==='org' ? state.org : state.ind;
+  const {correctClass, score} = scoreScenario(S.scenario, S.userClass, S.selectedFlags);
+  S.result = {correctClass, score};
+  S.stage = 'result';
+  if(ctx==='org'){
+    const stats = state.org.depts[S.activeDept];
+    stats.attempts++; stats.scoreSum+=score; if(correctClass) stats.correct++;
+  } else {
+    const pts = Math.round(score/10);
+    state.ind.points += pts;
+    syncLeaderboard();
+  }
+  render();
+}
+function syncLeaderboard(){
+  const meIdx = state.leaderboard.findIndex(p=>p.name==='You');
+  if(meIdx>=0) state.leaderboard[meIdx].points = state.ind.points;
+  else state.leaderboard.push({name:'You', points: state.ind.points});
+}
+
+function renderSimCore(ctx){
+  const S = ctx==='org' ? state.org : state.ind;
+  if(S.loading) return loadingHTML();
+  if(S.error) return `<div class="error-box">${S.error}</div><div style="margin-top:12px"><button class="btn btn-primary" onclick="startSim('${ctx}')">Try again</button></div>`;
+  if(!S.scenario) return `<p style="color:var(--muted);font-size:13.5px">Click "Generate new scenario" to let the engine craft a realistic attack tailored to this category.</p>`;
+
+  const s = S.scenario;
+  let body = renderMsgMock(s);
+
+  if(S.stage==='classify'){
+    body += `<div class="classify-row">
+      <button class="btn btn-danger" onclick="classify('${ctx}', true)">🚩 This is Phishing</button>
+      <button class="btn btn-safe" onclick="classify('${ctx}', false)">✅ This is Safe</button>
+    </div>`;
+  } else if(S.stage==='flags'){
+    const opts = S._flagOptions.map(f=>`
+      <label class="flag-item"><input type="checkbox" ${S.selectedFlags.includes(f)?'checked':''} onchange="toggleFlag('${ctx}','${f.replace(/'/g,"\\'")}')"> ${f}</label>
+    `).join('');
+    body += `<p style="margin-top:18px;font-weight:700;font-size:14px">Select the signs that told you this is a phishing message:</p>
+      <div class="flag-list">${opts}</div>
+      <button class="btn btn-primary" onclick="finishSim('${ctx}')">Confirm answer</button>`;
+  } else if(S.stage==='result'){
+    const r = S.result;
+    const trueFlags = s.red_flags;
+    let flagsHTML = '';
+    if(s.is_phishing){
+      flagsHTML = trueFlags.map(f=>{
+        const got = S.selectedFlags.includes(f);
+        return `<div class="flag-check ${got?'hit':'miss'}">${got?'✔':'✘'} ${f}</div>`;
+      }).join('') + S.selectedFlags.filter(f=>!trueFlags.includes(f)).map(f=>`<div class="flag-check wrong">✘ (incorrect pick) ${f}</div>`).join('');
+    }
+    body += `<div style="margin-top:18px">
+      <div class="result-head">
+        <span class="result-badge ${r.correctClass?'good':'bad'}">${r.correctClass?'Correct classification':'Incorrect classification'}</span>
+        <span class="score-num mono">SCORE: ${r.score}/100</span>
+      </div>
+      ${flagsHTML ? `<div style="margin:10px 0">${flagsHTML}</div>` : ''}
+      <div class="explain-box">
+        <div><b>Correct action:</b> ${s.correct_action}</div>
+        <div style="margin-top:8px"><b>Explanation:</b> ${s.explanation}</div>
+      </div>
+      <div style="margin-top:16px;display:flex;gap:10px;flex-wrap:wrap">
+        <button class="btn btn-primary" onclick="startSim('${ctx}')">New scenario</button>
+      </div>
+    </div>`;
+  }
+  return body;
+}
+
+/* ============ ORG SIM VIEW ============ */
+function setOrgDiff(k){ state.org.difficulty=k; render(); }
+function renderOrgSim(){
+  const d = DEPARTMENTS.find(x=>x.key===state.org.activeDept);
+  const stats = state.org.depts[d.key];
+  const risk = deptRisk(stats);
+  const diffBtns = DIFFICULTIES.map(x=>`<button class="diff-btn ${state.org.difficulty===x.key?'active':''}" onclick="setOrgDiff('${x.key}')">${x.name}</button>`).join('');
+  return `
+    <div class="breadcrumb"><button onclick="go('org')">Organizations</button> / ${d.name}</div>
+    <div class="eyebrow">${d.icon} Simulation — ${d.name}</div>
+    <h2 class="section-title">Training scenario tailored to ${d.name}</h2>
+    <div class="sim-grid">
+      <div class="panel">
+        <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px">
+          <div class="diff-row" style="margin:0">${diffBtns}</div>
+          <button class="btn btn-primary" ${state.org.loading?'disabled':''} onclick="startSim('org')">⚡ Generate new scenario</button>
+        </div>
+        <div style="margin-top:18px">${renderSimCore('org')}</div>
+      </div>
+      <div class="panel">
+        <h3 style="margin-top:0;font-size:15px">Department stats</h3>
+        <div class="side-stat"><span>Attempts</span><span class="v mono">${stats.attempts}</span></div>
+        <div class="side-stat"><span>Correct classification</span><span class="v mono">${stats.attempts? Math.round(stats.correct/stats.attempts*100):0}%</span></div>
+        <div class="side-stat"><span>Average awareness</span><span class="v mono">${stats.attempts? Math.round(stats.scoreSum/stats.attempts):0}/100</span></div>
+        <div class="side-stat"><span>Risk score</span><span class="v mono" style="color:${risk===null?'var(--muted)':risk>=70?'var(--danger)':risk>=40?'var(--warn)':'var(--safe)'}">${risk===null?'—':risk+'%'}</span></div>
+        <p style="font-size:12.5px;color:var(--muted);margin-top:14px;line-height:1.8">The risk score is recalculated automatically after every scenario, and shows up in the org dashboard to track which departments are most exposed.</p>
+      </div>
+    </div>
+  `;
+}
+
+/* ============ DASHBOARD ============ */
+function generateOrgCode() {
+    if (state.auth.user?.organization_code) {
+        return state.auth.user.organization_code;
+    }
+
+    if (state.org?.data?.organization_code) {
+        return state.org.data.organization_code;
+    }
+
+    return "Loading...";
+}
+
+async function copyOrgCode() {
+  const orgCode =
+    state.org.data?.organization_code ||
+    state.auth.user?.organization_code;
+
+  if (!orgCode) {
+    alert('Organization code is still loading.');
+    return;
+  }
+
+  try {
+    await navigator.clipboard.writeText(orgCode);
+
+    const button = document.getElementById('copy-org-code-btn');
+
+    if (button) {
+      const oldText = button.innerHTML;
+      button.innerHTML = 'Copied!';
+
+      setTimeout(() => {
+        button.innerHTML = oldText;
+      }, 2000);
+    }
+  } catch (error) {
+    alert(`Organization Code: ${orgCode}`);
+  }
+}
+
+async function loadMyOrganization() {
+  if (!isOrgAdmin()) return;
+
+  try {
+    state.org.data = await api.getMyOrganization();
+  } catch (error) {
+    console.error('Failed to load organization:', error);
+    state.org.data = null;
+  }
+}
+
+function renderDashboard(){
+  const rows = DEPARTMENTS.map(d=>{
+    const stats = state.org.depts[d.key];
+    const risk = deptRisk(stats);
+    const riskVal = risk===null? 0 : risk;
+    const color = risk===null? 'var(--muted)' : risk>=70?'var(--danger)':risk>=40?'var(--warn)':'var(--safe)';
+    const statusTag = risk===null? `<span class="status-tag" style="background:#22304B;color:var(--muted)">No data</span>`
+      : risk>=70 ? `<span class="status-tag" style="background:var(--danger-dim);color:var(--danger)">Needs retraining</span>`
+      : risk>=40 ? `<span class="status-tag" style="background:#3A331A;color:var(--warn)">Monitor</span>`
+      : `<span class="status-tag" style="background:var(--safe-dim);color:var(--safe)">Good</span>`;
+    return `<tr>
+      <td>${d.icon} ${d.name}</td>
+      <td class="mono">${stats.attempts}</td>
+      <td class="mono">${stats.attempts? Math.round(stats.scoreSum/stats.attempts):'—'}</td>
+      <td><div class="bar-track"><div class="bar-fill" style="width:${riskVal}%;background:${color}"></div></div> <span class="mono" style="font-size:12px;color:${color}">${risk===null?'—':risk+'%'}</span></td>
+      <td>${statusTag}</td>
+    </tr>`;
+  }).join('');
+  const withData = DEPARTMENTS.map(d=>deptRisk(state.org.depts[d.key])).filter(r=>r!==null);
+  const overall = withData.length ? Math.round(withData.reduce((a,b)=>a+b,0)/withData.length) : null;
+  const totalAttempts = DEPARTMENTS.reduce((a,d)=>a+state.org.depts[d.key].attempts,0);
+  const orgCode =
+  state.org.data?.organization_code ||
+  state.auth.user?.organization_code ||
+  'Loading...';
+  
+  return `
+    <div class="eyebrow">Organization Dashboard</div>
+    <h2 class="section-title">Awareness and risk overview</h2>
+    <div class="kpi-row">
+      <div class="kpi"><div class="num mono" style="color:${overall===null?'var(--muted)':overall>=70?'var(--danger)':overall>=40?'var(--warn)':'var(--safe)'}">${overall===null?'—':overall+'%'}</div><div class="lbl">Overall company risk score</div></div>
+      <div class="kpi"><div class="num mono">${totalAttempts}</div><div class="lbl">Scenarios completed</div></div>
+      <div class="kpi"><div class="num mono">${DEPARTMENTS.length}</div><div class="lbl">Departments registered</div></div>
+    </div>
+    
+    <div class="panel" style="margin-bottom:20px;">
+      <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px;">
+        <div>
+          <div style="font-size:13px;color:var(--muted);margin-bottom:6px;font-weight:600;">Organization Code</div>
+          <div style="font-family:var(--mono);font-size:20px;font-weight:700;color:var(--accent);letter-spacing:1px;">${orgCode}</div>
+          <div style="font-size:12px;color:var(--muted);margin-top:4px;">Share this code with your team to join your organization</div>
+        </div>
+        <button id="copy-org-code-btn" class="btn btn-ghost" onclick="copyOrgCode()" style="font-size:13px;white-space:nowrap;">📋 Copy</button>
+      </div>
+    </div>
+    
+    <div class="panel" style="overflow:auto">
+      <table class="dash-table">
+        <thead><tr><th>Department</th><th>Attempts</th><th>Avg. awareness</th><th>Risk score</th><th>Status</th></tr></thead>
+        <tbody>${rows}</tbody>
+      </table>
+    </div>
+    ${overall===null?`<p style="color:var(--muted);font-size:13px;margin-top:14px">Not enough data yet — start training a department from the "Organizations" page.</p>`:''}
+  `;
+}
+
+/* ============ EMPLOYEES ============ */
+async function loadEmployees() {
+  try {
+    const employees = await api.getEmployees();
+    return employees || [];
+  } catch (error) {
+    console.error('Failed to load employees:', error);
+    // Return empty array if endpoint doesn't exist or fails
+    return [];
+  }
+}
+
+function renderEmployeesPage() {
+  // Always fetch fresh employee data when page opens
+  loadEmployees().then(employees => {
+    renderEmployeesPageWithData(employees);
+  }).catch(() => {
+    renderEmployeesPageWithData([]);
+  });
+
+  return `
+    <div class="eyebrow">Organization Management</div>
+    <h2 class="section-title">Employees</h2>
+    <p class="section-sub">Manage your organization's employees and monitor their security training progress.</p>
+    <div id="employees-content">
+      <div style="text-align:center;padding:40px;color:var(--muted);">
+        Loading employees...
+      </div>
+    </div>
+  `;
+}
+
+function renderEmployeesPageWithData(employees) {
+  const employeesContent = document.getElementById('employees-content');
+  if (!employeesContent) return;
+
+  if (!employees || employees.length === 0) {
+    employeesContent.innerHTML = `
+      <div style="text-align:center;padding:40px;background:var(--panel);border:1px solid var(--border);border-radius:12px;">
+        <h3 style="margin:0 0 12px;font-size:18px;color:var(--muted);">No employees have joined your organization yet.</h3>
+        <p style="margin:0;color:var(--muted);font-size:14px;">Share your Organization Code with your team.</p>
+      </div>
+    `;
+    return;
+  }
+
+  const rows = employees.map(emp => {
+    const joinedDate = emp.created_at ? new Date(emp.created_at).toLocaleDateString() : 'Unknown';
+    const riskLevel = emp.risk_level || 'Low'; // Placeholder as specified
+    const status = emp.status || 'Active'; // Default to Active as specified
+    
+    return `
+      <tr>
+        <td style="font-weight:600;">${emp.name || 'Unknown'}</td>
+        <td style="font-family:var(--mono);color:var(--muted);">${emp.email || 'Unknown'}</td>
+        <td>${emp.department || 'Not assigned'}</td>
+        <td style="text-transform:capitalize;">${emp.role || 'Employee'}</td>
+        <td style="font-family:var(--mono);">${joinedDate}</td>
+        <td><span class="risk-pill risk-low">${riskLevel}</span></td>
+        <td><span class="status-tag" style="background:var(--safe-dim);color:var(--safe);">${status}</span></td>
+      </tr>
+    `;
+  }).join('');
+
+  employeesContent.innerHTML = `
+    <div class="panel" style="overflow:auto">
+      <table class="dash-table">
+        <thead>
+          <tr>
+            <th>Name</th>
+            <th>Email</th>
+            <th>Department</th>
+            <th>Role</th>
+            <th>Joined Date</th>
+            <th>Risk Level</th>
+            <th>Status</th>
+          </tr>
+        </thead>
+        <tbody>${rows}</tbody>
+      </table>
+    </div>
+    <div style="margin-top:16px;color:var(--muted);font-size:13px;">
+      Total employees: <strong>${employees.length}</strong>
+    </div>
+  `;
+}
+
+/* ============ INDIVIDUALS ============ */
+function renderIndHome(){
+  const user = state.auth.user;
+  const userInfo = user ? `
+    <div style="background:var(--panel-2);border:1px solid var(--border);border-radius:10px;padding:16px;margin-bottom:24px;">
+      <h3 style="margin:0 0 8px;font-size:16px;color:var(--text);">Welcome back, ${user.name}!</h3>
+      <p style="margin:0;color:var(--muted);font-size:14px;">
+        Individual Training Account • Points: <strong style="color:var(--safe);">${state.ind.points}</strong>
+      </p>
+    </div>
+  ` : '';
+
+  return `
+    <div class="eyebrow">Individuals</div>
+    <h2 class="section-title">How would you like to take part?</h2>
+    <p class="section-sub">If you're tech-savvy, you have your own training and competition track. If you'd rather help an older person in your life, we have a path designed for that too.</p>
+    ${userInfo}
+    <div class="path-grid">
+      <div class="path-card" onclick="go('ind-tech')"><div class="ic">💻</div><h3>I'm tech-savvy</h3><p>Train on realistic phishing scenarios across banking, shopping, and social media, and earn points that show up on the leaderboard.</p><div class="go">Start training →</div></div>
+      <div class="path-card" onclick="go('ind-senior')"><div class="ic">👴</div><h3>I'll help an older person</h3><p>Learn the security basics yourself, teach them to someone you care about, then help them pass a short quiz to earn points.</p><div class="go">Start the awareness flow →</div></div>
+    </div>
+    <div style="margin-top:20px"><button class="btn btn-ghost" onclick="go('lb')">🏆 View the leaderboard</button></div>
+  `;
+}
+function setIndSector(k){ state.ind.sector=k; render(); }
+function setIndDiff(k){ state.ind.difficulty=k; render(); }
+function renderIndSim(){
+  const secBtns = SECTORS.map(s=>`<button class="diff-btn ${state.ind.sector===s.key?'active':''}" onclick="setIndSector('${s.key}')">${s.icon} ${s.name}</button>`).join('');
+  const diffBtns = DIFFICULTIES.map(x=>`<button class="diff-btn ${state.ind.difficulty===x.key?'active':''}" onclick="setIndDiff('${x.key}')">${x.name}</button>`).join('');
+  return `
+    <div class="breadcrumb"><button onclick="go('ind')">Individuals</button> / Tech training</div>
+    <div class="eyebrow">Individual simulation</div>
+    <h2 class="section-title">Test yourself against realistic scenarios</h2>
+    <div class="sim-grid">
+      <div class="panel">
+        <div class="diff-row" style="flex-wrap:wrap">${secBtns}</div>
+        <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px">
+          <div class="diff-row" style="margin:0">${diffBtns}</div>
+          <button class="btn btn-primary" ${state.ind.loading?'disabled':''} onclick="startSim('ind')">⚡ Generate new scenario</button>
+        </div>
+        <div style="margin-top:18px">${renderSimCore('ind')}</div>
+      </div>
+      <div class="panel">
+        <h3 style="margin-top:0;font-size:15px">Your points</h3>
+        <div class="num mono" style="font-family:'Space Grotesk';font-size:32px;color:var(--safe)">${state.ind.points}</div>
+        <p style="font-size:12.5px;color:var(--muted);margin-top:6px">${badgeFor(state.ind.points) ? 'Current badge: '+badgeFor(state.ind.points) : 'Keep going to unlock the Bronze badge at 50 points'}</p>
+        <button class="btn btn-ghost" style="margin-top:10px;width:100%" onclick="go('lb')">View leaderboard</button>
+      </div>
+    </div>
+  `;
+}
+
+/* ============ INDIVIDUAL SENIOR ============ */
+function startSeniorQuiz(){ state.ind.quizStarted=true; state.ind.quizAnswers={}; state.ind.quizResult=null; render(); }
+function answerSenior(qi, oi){ state.ind.quizAnswers[qi]=oi; render(); }
+function submitSeniorQuiz(){
+  let correct=0;
+  SENIOR_QUIZ.forEach((q,i)=>{ if(state.ind.quizAnswers[i]===q.correct) correct++; });
+  const passed = correct>=4;
+  state.ind.quizResult = {correct, passed};
+  if(passed){ state.ind.points += 30; syncLeaderboard(); }
+  render();
+}
+function retrySeniorQuiz(){ state.ind.quizStarted=false; state.ind.quizResult=null; state.ind.quizAnswers={}; render(); }
+
+function renderIndSenior(){
+  let inner;
+  if(!state.ind.quizStarted){
+    const cards = CHECKLIST.map(c=>`<div class="check-card"><div class="ic">${c.ic}</div><h4>${c.h}</h4><p>${c.p}</p></div>`).join('');
+    inner = `
+      <p class="section-sub" style="margin-bottom:6px">Walk them through these four points in your own words and simple language, then have them take a short quiz.</p>
+      <div class="checklist">${cards}</div>
+      <button class="btn btn-primary" onclick="startSeniorQuiz()">Start awareness quiz (5 questions)</button>
+    `;
+  } else if(!state.ind.quizResult){
+    const qs = SENIOR_QUIZ.map((q,i)=>`
+      <div class="quiz-q"><h4>${i+1}. ${q.q}</h4>
+        ${q.opts.map((o,oi)=>`<label class="quiz-opt"><input type="radio" name="q${i}" ${state.ind.quizAnswers[i]===oi?'checked':''} onchange="answerSenior(${i},${oi})"> ${o}</label>`).join('')}
+      </div>`).join('');
+    const allAnswered = Object.keys(state.ind.quizAnswers).length===SENIOR_QUIZ.length;
+    inner = `${qs}<button class="btn btn-primary" ${allAnswered?'':'disabled'} onclick="submitSeniorQuiz()">Submit answers</button>`;
+  } else {
+    const r = state.ind.quizResult;
+    inner = `<div class="panel" style="text-align:center">
+      <div class="result-badge ${r.passed?'good':'bad'}" style="font-size:15px">${r.passed?'Passed the quiz! 🎉':'Did not reach the passing score'}</div>
+      <p style="margin:14px 0;font-size:14px">Score: ${r.correct} out of ${SENIOR_QUIZ.length}</p>
+      ${r.passed?`<p style="color:var(--safe);font-size:13.5px">You earned 30 points for a successful awareness session! 🏆</p>`:`<p style="color:var(--muted);font-size:13.5px">Go over the checklist with them again and retake the quiz.</p>`}
+      <button class="btn btn-primary" onclick="retrySeniorQuiz()">${r.passed?'Teach someone else':'Try again'}</button>
+    </div>`;
+  }
+  return `
+    <div class="breadcrumb"><button onclick="go('ind')">Individuals</button> / Senior awareness</div>
+    <div class="eyebrow">Community awareness</div>
+    <h2 class="section-title">Teach someone you love the basics of protection</h2>
+    ${inner}
+  `;
+}
+
+/* ============ INVITATIONS ============ */
+function renderInvitationsPage() {
+  return `
+    <div class="eyebrow">Organization Management</div>
+    <h2 class="section-title">Invitations</h2>
+    <p class="section-sub">Manage organization invitations and employee onboarding.</p>
+    <div style="text-align:center;padding:60px;background:var(--panel);border:1px solid var(--border);border-radius:12px;">
+      <h3 style="margin:0 0 12px;color:var(--muted);">Invitation system coming soon</h3>
+      <p style="margin:0;color:var(--muted);font-size:14px;">Send and manage employee invitations here.</p>
+    </div>
+  `;
+}
+
+/* ============ EMPLOYEE PAGES ============ */
+function renderEmployeeTrainingPage() {
+  return `
+    <div class="eyebrow">Employee Training</div>
+    <h2 class="section-title">My Training</h2>
+    <p class="section-sub">Complete cybersecurity training scenarios assigned by your organization.</p>
+    <div style="text-align:center;padding:60px;background:var(--panel);border:1px solid var(--border);border-radius:12px;">
+      <h3 style="margin:0 0 12px;color:var(--muted);">Training system coming soon</h3>
+      <p style="margin:0;color:var(--muted);font-size:14px;">Your organization admin will assign training scenarios here.</p>
+    </div>
+  `;
+}
+
+function renderEmployeeProgressPage() {
+  return `
+    <div class="eyebrow">Employee Progress</div>
+    <h2 class="section-title">My Progress</h2>
+    <p class="section-sub">Track your cybersecurity training progress and achievements.</p>
+    <div style="text-align:center;padding:60px;background:var(--panel);border:1px solid var(--border);border-radius:12px;">
+      <h3 style="margin:0 0 12px;color:var(--muted);">Progress tracking coming soon</h3>
+      <p style="margin:0;color:var(--muted);font-size:14px;">View your training scores and progress here.</p>
+    </div>
+  `;
+}
+
+/* ============ LEADERBOARD ============ */
+function renderLeaderboard(){
+  const sorted = [...state.leaderboard].sort((a,b)=>b.points-a.points);
+  const rows = sorted.map((p,i)=>{
+    const b = badgeFor(p.points);
+    return `<div class="lb-row ${p.name==='You'?'me':''}">
+      <div class="lb-rank">#${i+1}</div>
+      <div class="lb-name">${p.name}</div>
+      ${b?`<span class="badge-pill">${b}</span>`:''}
+      <div class="lb-points mono">${p.points} pts</div>
+    </div>`;
+  }).join('');
+  return `
+    <div class="eyebrow">Leaderboard</div>
+    <h2 class="section-title">Top awareness contributors</h2>
+    <p class="section-sub">Points come from individual training and from successfully teaching an older person. Badges: Bronze at 50, Silver at 150, Gold at 300.</p>
+    ${rows}
+  `;
+}
+
+/* ============ AUTH ============ */
+function joinOrganization() {
+  if (state.auth.isLoggedIn) {
+    alert('Please logout first to join an organization as an employee.');
+    return;
+  }
+
+  state.auth.error = null;
+  go('join-org');
+}
+
+function startOrganization() {
+  const role = state.auth.user?.role;
+
+  if (state.auth.isLoggedIn && (role === 'organization' || role === 'organization_admin')) {
+    go('org');
+    return;
+  }
+
+  state.auth.registerType = 'organization';
+  go('register');
+}
+
+function startIndividual() {
+  if (state.auth.isLoggedIn && state.auth.user?.role === 'individual') {
+    go('ind');
+    return;
+  }
+  state.auth.registerType = 'individual';
+  go('register');
+}
+
+function logout() {
+  logoutUser();
+  state.auth.isLoggedIn = false;
+  state.auth.user = null;
+  go('home');
+}
+
+async function submitRegister() {
+  const name = document.getElementById('reg-name')?.value.trim() || '';
+  const email = document.getElementById('reg-email')?.value.trim() || '';
+  const password = document.getElementById('reg-password')?.value || '';
+  const confirmPassword =
+    document.getElementById('reg-confirm-password')?.value || '';
+
+  const isOrganizationRegistration =
+    state.auth.registerType === 'organization';
+
+  const role = isOrganizationRegistration
+    ? 'organization_admin'
+    : 'individual';
+
+  const organizationName = isOrganizationRegistration
+    ? document.getElementById('reg-org-name')?.value.trim() || ''
+    : null;
+
+  if (!name || !email || !password || !confirmPassword) {
+    state.auth.error = 'Please fill all required fields.';
+    render();
+    return;
+  }
+
+  if (password !== confirmPassword) {
+    state.auth.error = 'Passwords do not match.';
+    render();
+    return;
+  }
+
+  if (password.length < 6) {
+    state.auth.error = 'Password must be at least 6 characters long.';
+    render();
+    return;
+  }
+
+  if (isOrganizationRegistration && !organizationName) {
+    state.auth.error = 'Organization name is required.';
+    render();
+    return;
+  }
+
+  state.auth.loading = true;
+  state.auth.error = null;
+  render();
+
+  try {
+    const response = await api.register(
+      name,
+      email,
+      password,
+      role,
+      organizationName
+    );
+
+    loginUser(response);
+
+    state.auth.isLoggedIn = true;
+    state.auth.user = response.user;
+    state.auth.loading = false;
+    state.auth.error = null;
+    state.auth.registerType = null;
+
+    const returnedRole = response.user?.role;
+
+    if (
+      returnedRole === 'organization_admin' ||
+      returnedRole === 'organization'
+    ) {
+      go('dash');
+    } else if (returnedRole === 'individual') {
+      go('ind');
+    } else if (returnedRole === 'employee') {
+      go('employee-training');
+    } else {
+      go('home');
+    }
+  } catch (error) {
+    console.error('Registration failed:', error);
+
+    state.auth.loading = false;
+    state.auth.error =
+      error.message || 'Registration failed. Please try again.';
+
+    render();
+  }
+}
+
+async function submitLogin() {
+  const email = document.getElementById('login-email').value.trim();
+  const password = document.getElementById('login-password').value;
+
+  if (!email || !password) {
+    state.auth.error = 'Please fill all fields.';
+    render();
+    return;
+  }
+
+  state.auth.loading = true;
+  state.auth.error = null;
+  render();
+
+  try {
+    const response = await api.login(email, password);
+    loginUser(response);
+    state.auth.isLoggedIn = true;
+    state.auth.user = response.user;
+    state.auth.loading = false;
+    
+    // Redirect based on role
+    if (response.user.role === 'organization') {
+      go('org');
+    } else if (response.user.role === 'individual') {
+      go('ind');
+    } else {
+      go('home');
+    }
+  } catch (error) {
+    state.auth.loading = false;
+    state.auth.error = 'Invalid email or password.';
+    render();
+  }
+}
+
+async function checkAuthStatus() {
+  const token = getAuthToken();
+  const user = getCurrentUser();
+  
+  if (!token || !user) {
+    state.auth.isLoggedIn = false;
+    state.auth.user = null;
+    return;
+  }
+
+  try {
+    // Verify token is still valid
+    const currentUser = await api.getMe();
+    state.auth.isLoggedIn = true;
+    state.auth.user = currentUser;
+  } catch (error) {
+    // Token is invalid or backend is not available, clear it
+    console.log('Auth check failed:', error.message);
+    logoutUser();
+    state.auth.isLoggedIn = false;
+    state.auth.user = null;
+  }
+}
+
+function renderLogin() {
+  return `
+    <div style="max-width:420px;margin:40px auto;padding:32px;background:var(--panel);border:1px solid var(--border);border-radius:16px;">
+      <h2 style="margin:0 0 24px;text-align:center;font-family:var(--display);">Login to Aegis AI</h2>
+      
+      ${state.auth.error ? `
+        <div style="background:var(--danger-dim);border:1px solid var(--danger);border-radius:8px;padding:12px;margin-bottom:16px;color:var(--danger);font-size:14px;">
+          ${state.auth.error}
+        </div>
+      ` : ''}
+      
+      <div style="margin-bottom:16px;">
+        <label style="display:block;margin-bottom:6px;font-weight:600;color:var(--text);">Email</label>
+        <input type="email" id="login-email" style="width:100%;padding:12px;background:var(--panel-2);border:1px solid var(--border);border-radius:8px;color:var(--text);font-size:14px;" placeholder="your@email.com" />
+      </div>
+      
+      <div style="margin-bottom:24px;">
+        <label style="display:block;margin-bottom:6px;font-weight:600;color:var(--text);">Password</label>
+        <input type="password" id="login-password" style="width:100%;padding:12px;background:var(--panel-2);border:1px solid var(--border);border-radius:8px;color:var(--text);font-size:14px;" placeholder="Enter your password" />
+      </div>
+      
+      <button class="btn btn-primary" onclick="submitLogin()" ${state.auth.loading ? 'disabled' : ''} style="width:100%;margin-bottom:16px;">
+        ${state.auth.loading ? 'Logging in...' : 'Login'}
+      </button>
+      
+      <p style="text-align:center;color:var(--muted);margin:0;">
+        Don't have an account? <button onclick="go('register')" style="background:none;border:none;color:var(--accent);cursor:pointer;text-decoration:underline;">Register here</button>
+      </p>
+    </div>
+  `;
+}
+
+function renderRegister() {
+  const isOrganization = state.auth.registerType === 'organization';
+  const title = isOrganization ? 'Register Organization Account' : 'Register Individual Account';
+  const subtitle = isOrganization ? 'Create an account for your organization' : 'Create your personal training account';
+
+  return `
+    <div style="max-width:420px;margin:40px auto;padding:32px;background:var(--panel);border:1px solid var(--border);border-radius:16px;">
+      <h2 style="margin:0 0 8px;text-align:center;font-family:var(--display);">${title}</h2>
+      <p style="text-align:center;color:var(--muted);margin:0 0 24px;font-size:14px;">${subtitle}</p>
+      
+      ${state.auth.error ? `
+        <div style="background:var(--danger-dim);border:1px solid var(--danger);border-radius:8px;padding:12px;margin-bottom:16px;color:var(--danger);font-size:14px;">
+          ${state.auth.error}
+        </div>
+      ` : ''}
+      
+      <div style="margin-bottom:16px;">
+        <label style="display:block;margin-bottom:6px;font-weight:600;color:var(--text);">Full Name</label>
+        <input type="text" id="reg-name" style="width:100%;padding:12px;background:var(--panel-2);border:1px solid var(--border);border-radius:8px;color:var(--text);font-size:14px;" placeholder="Your full name" />
+      </div>
+      
+      <div style="margin-bottom:16px;">
+        <label style="display:block;margin-bottom:6px;font-weight:600;color:var(--text);">Email</label>
+        <input type="email" id="reg-email" style="width:100%;padding:12px;background:var(--panel-2);border:1px solid var(--border);border-radius:8px;color:var(--text);font-size:14px;" placeholder="your@email.com" />
+      </div>
+      
+      <div style="margin-bottom:16px;">
+        <label style="display:block;margin-bottom:6px;font-weight:600;color:var(--text);">Password</label>
+        <input type="password" id="reg-password" style="width:100%;padding:12px;background:var(--panel-2);border:1px solid var(--border);border-radius:8px;color:var(--text);font-size:14px;" placeholder="Choose a secure password (min 6 characters)" />
+      </div>
+      
+      <div style="margin-bottom:16px;">
+        <label style="display:block;margin-bottom:6px;font-weight:600;color:var(--text);">Confirm Password</label>
+        <input type="password" id="reg-confirm-password" style="width:100%;padding:12px;background:var(--panel-2);border:1px solid var(--border);border-radius:8px;color:var(--text);font-size:14px;" placeholder="Confirm your password" />
+      </div>
+      
+      ${isOrganization ? `
+        <div style="margin-bottom:24px;">
+          <label style="display:block;margin-bottom:6px;font-weight:600;color:var(--text);">Organization Name</label>
+          <input type="text" id="reg-org-name" style="width:100%;padding:12px;background:var(--panel-2);border:1px solid var(--border);border-radius:8px;color:var(--text);font-size:14px;" placeholder="Your company name" />
+        </div>
+      ` : ''}
+      
+      <button class="btn btn-primary" onclick="submitRegister()" ${state.auth.loading ? 'disabled' : ''} style="width:100%;margin-bottom:16px;">
+        ${state.auth.loading ? 'Creating Account...' : `Create ${isOrganization ? 'Organization' : 'Individual'} Account`}
+      </button>
+      
+      <p style="text-align:center;color:var(--muted);margin:0;">
+        Already have an account? <button onclick="go('login')" style="background:none;border:none;color:var(--accent);cursor:pointer;text-decoration:underline;">Login here</button>
+      </p>
+      
+      <div style="text-align:center;margin-top:16px;">
+        <button onclick="go('home')" style="background:none;border:none;color:var(--muted);cursor:pointer;font-size:13px;">← Back to Home</button>
+      </div>
+    </div>
+  `;
+}
+
+function renderJoinOrganization() {
+  return `
+  <div style="max-width:600px;margin:40px auto;">
+    <div class="card">
+
+      <h2 style="margin-bottom:10px;">
+        👥 Join an Organization
+      </h2>
+
+      <p class="muted" style="margin-bottom:24px;">
+        Enter your organization code to join your company.
+      </p>
+
+      ${
+        state.auth.error
+          ? `<div class="alert alert-danger">${state.auth.error}</div>`
+          : ""
+      }
+
+      <div class="form-group">
+        <label>Full Name</label>
+        <input
+          id="join-name"
+          class="input"
+          placeholder="Your full name">
+      </div>
+
+      <div class="form-group">
+        <label>Email</label>
+        <input
+          id="join-email"
+          class="input"
+          type="email"
+          placeholder="example@email.com">
+      </div>
+
+      <div class="form-group">
+        <label>Password</label>
+        <input
+          id="join-password"
+          class="input"
+          type="password">
+      </div>
+
+      <div class="form-group">
+        <label>Confirm Password</label>
+        <input
+          id="join-confirm"
+          class="input"
+          type="password">
+      </div>
+
+      <div class="form-group">
+        <label>Organization Code</label>
+        <input
+          id="join-org-code"
+          class="input"
+          placeholder="ORG-XXXXXX">
+      </div>
+
+      <div class="form-group">
+        <label>Department</label>
+
+        <select
+          id="join-department"
+          class="input">
+
+          <option value="Accounting">Accounting</option>
+          <option value="Human Resources">Human Resources</option>
+          <option value="IT">IT</option>
+          <option value="Marketing">Marketing</option>
+          <option value="Sales">Sales</option>
+
+        </select>
+      </div>
+
+      <div style="display:flex;gap:12px;margin-top:24px;">
+
+        <button
+          class="btn btn-primary"
+          onclick="submitJoinOrganization()">
+
+          Join Organization
+
+        </button>
+
+        <button
+          class="btn btn-ghost"
+          onclick="go('login')">
+
+          Back
+
+        </button>
+
+      </div>
+
+    </div>
+  </div>
+  `;
+}
+
+async function submitJoinOrganization() {
+
+  state.auth.error = null;
+
+  const name = document.getElementById("join-name").value.trim();
+  const email = document.getElementById("join-email").value.trim();
+  const password = document.getElementById("join-password").value;
+  const confirm = document.getElementById("join-confirm").value;
+  const organizationCode = document.getElementById("join-org-code").value.trim();
+  const department = document.getElementById("join-department").value;
+
+  if (
+    !name ||
+    !email ||
+    !password ||
+    !organizationCode
+  ) {
+    alert("Please fill all fields.");
+    return;
+  }
+
+  if (password !== confirm) {
+    alert("Passwords do not match.");
+    return;
+  }
+
+  try {
+
+    const response = await api.joinOrganization(
+      name,
+      email,
+      password,
+      organizationCode,
+      department
+    );
+
+    localStorage.setItem(
+      "token",
+      response.access_token
+    );
+
+    localStorage.setItem(
+      "user",
+      JSON.stringify(response.user)
+    );
+
+    state.auth.isLoggedIn = true;
+    state.auth.user = response.user;
+
+    go("employee-training");
+
+  } catch (err) {
+
+    state.auth.error =
+      err.message || "Unable to join organization.";
+
+    render();
+
+  }
+
+}
+
+/* ============ INIT ============ */
+async function init() {
+    try {
+        await checkAuthStatus();
+    } catch (e) {
+        console.error(e);
+    }
+
+    render();
+}
+
+init();
+</script>
+</body>
+</html>

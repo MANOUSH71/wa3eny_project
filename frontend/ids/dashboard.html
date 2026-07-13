@@ -1,0 +1,796 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>NexusIDS — Intrusion Detection System</title>
+<link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Rajdhani:wght@400;500;600;700&display=swap" rel="stylesheet"/>
+<style>
+  :root {
+    --bg:       #0a0e0a;
+    --panel:    #0f140f;
+    --border:   #1a2e1a;
+    --accent:   #00ff41;
+    --accent2:  #39ff14;
+    --danger:   #ff1744;
+    --warn:     #ffc107;
+    --med:      #ff6f00;
+    --low:      #4caf50;
+    --text:     #e0ffe0;
+    --muted:    #5a7a5a;
+    --glow:     0 0 20px rgba(0,255,65,0.4);
+    --glow-red: 0 0 20px rgba(255,23,68,0.5);
+  }
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'Rajdhani', sans-serif;
+    font-size: 15px;
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  /* Scanline overlay */
+  body::before {
+    content: '';
+    position: fixed; inset: 0;
+    background: repeating-linear-gradient(
+      0deg,
+      transparent,
+      transparent 2px,
+      rgba(0,0,0,0.05) 2px,
+      rgba(0,0,0,0.05) 4px
+    );
+    pointer-events: none;
+    z-index: 1000;
+  }
+
+  /* ── Header ── */
+  header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 14px 28px;
+    background: linear-gradient(90deg, #000000 0%, #0a0e0a 100%);
+    border-bottom: 1px solid var(--border);
+    position: sticky; top: 0; z-index: 100;
+    box-shadow: 0 2px 30px rgba(0,255,65,0.1);
+  }
+
+  .logo {
+    display: flex; align-items: center; gap: 12px;
+  }
+  .logo-icon {
+    width: 38px; height: 38px;
+    border: 2px solid var(--accent);
+    border-radius: 6px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 18px;
+    box-shadow: var(--glow);
+    animation: pulse-border 2s ease-in-out infinite;
+  }
+  @keyframes pulse-border {
+    0%,100% { box-shadow: 0 0 10px rgba(0,255,65,0.4); }
+    50%      { box-shadow: 0 0 25px rgba(0,255,65,0.8); }
+  }
+  .logo-text {
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 22px;
+    color: var(--accent);
+    letter-spacing: 3px;
+    text-shadow: 0 0 12px rgba(0,255,65,0.7);
+  }
+  .logo-sub {
+    font-size: 11px;
+    color: var(--muted);
+    letter-spacing: 2px;
+    text-transform: uppercase;
+  }
+
+  .header-right {
+    display: flex; align-items: center; gap: 20px;
+  }
+  .status-badge {
+    display: flex; align-items: center; gap: 8px;
+    padding: 6px 14px;
+    background: rgba(0,255,65,0.1);
+    border: 1px solid rgba(0,255,65,0.4);
+    border-radius: 20px;
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 12px;
+    color: var(--accent2);
+  }
+  .status-dot {
+    width: 8px; height: 8px;
+    border-radius: 50%;
+    background: var(--accent2);
+    animation: blink 1.2s ease-in-out infinite;
+  }
+  @keyframes blink { 0%,100%{opacity:1} 50%{opacity:0.2} }
+
+  #clock {
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 13px;
+    color: var(--muted);
+    letter-spacing: 1px;
+  }
+
+  /* ── Layout ── */
+  .main { padding: 20px 24px; display: flex; flex-direction: column; gap: 18px; }
+
+  /* ── Stat Cards ── */
+  .stats-row {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 14px;
+  }
+
+  .stat-card {
+    background: var(--panel);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 18px 20px;
+    position: relative;
+    overflow: hidden;
+    transition: border-color 0.3s;
+  }
+  .stat-card::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 2px;
+    background: var(--card-accent, var(--accent));
+  }
+  .stat-card:hover { border-color: var(--card-accent, var(--accent)); }
+
+  .stat-label {
+    font-size: 11px;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-bottom: 10px;
+  }
+  .stat-value {
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 32px;
+    font-weight: 700;
+    color: var(--card-accent, var(--accent));
+    text-shadow: 0 0 15px currentColor;
+    line-height: 1;
+  }
+  .stat-sub {
+    font-size: 12px;
+    color: var(--muted);
+    margin-top: 6px;
+  }
+  .stat-icon {
+    position: absolute;
+    right: 16px; top: 50%;
+    transform: translateY(-50%);
+    font-size: 36px;
+    opacity: 0.07;
+  }
+
+  /* ── Middle Row ── */
+  .mid-row {
+    display: grid;
+    grid-template-columns: 1fr 320px;
+    gap: 14px;
+  }
+
+  /* ── Panel Base ── */
+  .panel {
+    background: var(--panel);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    overflow: hidden;
+  }
+  .panel-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 12px 18px;
+    border-bottom: 1px solid var(--border);
+    background: rgba(0,255,65,0.03);
+  }
+  .panel-title {
+    font-size: 12px;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: var(--accent);
+    font-family: 'Share Tech Mono', monospace;
+    display: flex; align-items: center; gap: 8px;
+  }
+  .panel-body { padding: 16px 18px; }
+
+  /* ── Traffic Chart ── */
+  #traffic-canvas {
+    width: 100%;
+    height: 140px;
+    display: block;
+  }
+
+  /* ── Protocol Bars ── */
+  .proto-bars { display: flex; flex-direction: column; gap: 12px; }
+  .proto-row { display: flex; flex-direction: column; gap: 5px; }
+  .proto-label {
+    display: flex; justify-content: space-between;
+    font-size: 13px;
+    font-family: 'Share Tech Mono', monospace;
+  }
+  .proto-bar-bg {
+    height: 6px;
+    background: rgba(255,255,255,0.05);
+    border-radius: 3px;
+    overflow: hidden;
+  }
+  .proto-bar-fill {
+    height: 100%;
+    border-radius: 3px;
+    transition: width 0.8s ease;
+  }
+
+  /* ── Bottom Row ── */
+  .bottom-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 14px;
+  }
+
+  /* ── Alerts Table ── */
+  .alerts-table { width: 100%; border-collapse: collapse; }
+  .alerts-table th {
+    font-size: 10px;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: var(--muted);
+    padding: 8px 10px;
+    text-align: left;
+    border-bottom: 1px solid var(--border);
+    font-family: 'Share Tech Mono', monospace;
+  }
+  .alerts-table td {
+    padding: 9px 10px;
+    font-size: 13px;
+    border-bottom: 1px solid rgba(13,32,53,0.6);
+    font-family: 'Share Tech Mono', monospace;
+    vertical-align: middle;
+  }
+  .alert-row { animation: slideIn 0.4s ease; }
+  @keyframes slideIn {
+    from { opacity:0; transform: translateX(-10px); }
+    to   { opacity:1; transform: translateX(0); }
+  }
+
+  .severity-badge {
+    padding: 2px 8px;
+    border-radius: 3px;
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 1px;
+  }
+  .sev-CRITICAL { background: rgba(255,23,68,0.2);  color: #ff1744; border: 1px solid rgba(255,23,68,0.5); }
+  .sev-HIGH     { background: rgba(255,111,0,0.2); color: #ff6f00; border: 1px solid rgba(255,111,0,0.5); }
+  .sev-MEDIUM   { background: rgba(255,193,7,0.2);  color: #ffc107; border: 1px solid rgba(255,193,7,0.5); }
+  .sev-LOW      { background: rgba(76,175,80,0.2); color: #4caf50; border: 1px solid rgba(76,175,80,0.5); }
+  .sev-SYS      { background: rgba(0,255,65,0.15);  color: #00ff41; border: 1px solid rgba(0,255,65,0.4); }
+
+  .proto-tag {
+    font-size: 10px;
+    color: var(--muted);
+    background: rgba(255,255,255,0.04);
+    border: 1px solid var(--border);
+    padding: 1px 6px;
+    border-radius: 2px;
+  }
+
+  .alerts-scroll { max-height: 280px; overflow-y: auto; }
+  .alerts-scroll::-webkit-scrollbar { width: 4px; }
+  .alerts-scroll::-webkit-scrollbar-track { background: transparent; }
+  .alerts-scroll::-webkit-scrollbar-thumb { background: var(--border); border-radius: 2px; }
+
+  /* ── Attack Type Chart ── */
+  #type-canvas { width: 100%; height: 200px; display: block; }
+
+  /* ── Btn ── */
+  .btn {
+    padding: 5px 14px;
+    border-radius: 4px;
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 1px;
+    cursor: pointer;
+    transition: all 0.2s;
+    border: none;
+  }
+  .btn-danger {
+    background: rgba(255,23,68,0.15);
+    color: var(--danger);
+    border: 1px solid rgba(255,23,68,0.4);
+  }
+  .btn-danger:hover {
+    background: rgba(255,23,68,0.3);
+    box-shadow: 0 0 12px rgba(255,23,68,0.4);
+  }
+  .btn-accent {
+    background: rgba(0,255,65,0.1);
+    color: var(--accent);
+    border: 1px solid rgba(0,255,65,0.4);
+  }
+  .btn-accent:hover {
+    background: rgba(0,255,65,0.2);
+    box-shadow: var(--glow);
+  }
+
+  /* ── Alert Flash ── */
+  .flash {
+    position: fixed;
+    top: 70px; right: 20px;
+    background: rgba(255,23,68,0.15);
+    border: 1px solid var(--danger);
+    border-left: 4px solid var(--danger);
+    padding: 12px 18px;
+    border-radius: 4px;
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 13px;
+    color: #ff6b80;
+    box-shadow: var(--glow-red);
+    z-index: 999;
+    max-width: 340px;
+    animation: flashIn 0.3s ease;
+    display: none;
+  }
+  @keyframes flashIn {
+    from { transform: translateX(20px); opacity: 0; }
+    to   { transform: translateX(0);    opacity: 1; }
+  }
+  .flash-title { font-size: 12px; color: var(--danger); margin-bottom: 4px; letter-spacing: 1px; }
+
+  /* ── Responsive ── */
+  @media(max-width: 900px) {
+    .stats-row { grid-template-columns: repeat(2,1fr); }
+    .mid-row, .bottom-row { grid-template-columns: 1fr; }
+  }
+</style>
+</head>
+<body>
+
+<!-- ── Header ── -->
+<header>
+  <div class="logo">
+    <div class="logo-icon">🛡️</div>
+    <div>
+      <div class="logo-text">NEXUS<span style="color:#39ff14">IDS</span></div>
+      <div class="logo-sub">Intrusion Detection System</div>
+    </div>
+  </div>
+  <div class="header-right">
+    <div class="status-badge"><div class="status-dot"></div>MONITORING ACTIVE</div>
+    <div id="clock">--:--:--</div>
+  </div>
+</header>
+
+<!-- ── Flash Notification ── -->
+<div class="flash" id="flash">
+  <div class="flash-title">⚠ CRITICAL ALERT</div>
+  <div id="flash-body">Attack detected from 192.168.1.x</div>
+</div>
+
+<!-- ── Main ── -->
+<div class="main">
+
+  <!-- Stat Cards -->
+  <div class="stats-row">
+    <div class="stat-card" style="--card-accent:#00ff41">
+      <div class="stat-label">Total Packets</div>
+      <div class="stat-value" id="stat-packets">0</div>
+      <div class="stat-sub">Captured this session</div>
+      <div class="stat-icon">📦</div>
+    </div>
+    <div class="stat-card" style="--card-accent:#ff1744">
+      <div class="stat-label">Active Alerts</div>
+      <div class="stat-value" id="stat-alerts">0</div>
+      <div class="stat-sub">Threats detected</div>
+      <div class="stat-icon">🚨</div>
+    </div>
+    <div class="stat-card" style="--card-accent:#ff1744">
+      <div class="stat-label">Critical Threats</div>
+      <div class="stat-value" id="stat-critical">0</div>
+      <div class="stat-sub">Requires immediate action</div>
+      <div class="stat-icon">💀</div>
+    </div>
+    <div class="stat-card" style="--card-accent:#39ff14">
+      <div class="stat-label">Data Processed</div>
+      <div class="stat-value" id="stat-bytes">0 MB</div>
+      <div class="stat-sub">Network throughput</div>
+      <div class="stat-icon">📡</div>
+    </div>
+  </div>
+
+  <!-- Mid Row: Traffic + Protocols -->
+  <div class="mid-row">
+    <div class="panel">
+      <div class="panel-header">
+        <div class="panel-title">📈 Live Traffic Flow</div>
+        <span style="font-size:11px;color:var(--muted);font-family:monospace">packets/sec</span>
+      </div>
+      <div class="panel-body" style="padding-bottom:12px">
+        <canvas id="traffic-canvas"></canvas>
+      </div>
+    </div>
+
+    <div class="panel">
+      <div class="panel-header">
+        <div class="panel-title">🔗 Protocol Distribution</div>
+      </div>
+      <div class="panel-body">
+        <div class="proto-bars">
+          <div class="proto-row">
+            <div class="proto-label"><span>TCP</span><span id="pct-tcp">0%</span></div>
+            <div class="proto-bar-bg"><div class="proto-bar-fill" id="bar-tcp" style="background:#00ff41;width:0%"></div></div>
+          </div>
+          <div class="proto-row">
+            <div class="proto-label"><span>UDP</span><span id="pct-udp">0%</span></div>
+            <div class="proto-bar-bg"><div class="proto-bar-fill" id="bar-udp" style="background:#39ff14;width:0%"></div></div>
+          </div>
+          <div class="proto-row">
+            <div class="proto-label"><span>ICMP</span><span id="pct-icmp">0%</span></div>
+            <div class="proto-bar-bg"><div class="proto-bar-fill" id="bar-icmp" style="background:#ffc107;width:0%"></div></div>
+          </div>
+          <div class="proto-row">
+            <div class="proto-label"><span>OTHER</span><span id="pct-other">0%</span></div>
+            <div class="proto-bar-bg"><div class="proto-bar-fill" id="bar-other" style="background:#5a7a5a;width:0%"></div></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Bottom Row -->
+  <div class="bottom-row">
+
+    <!-- Alerts Feed -->
+    <div class="panel">
+      <div class="panel-header">
+        <div class="panel-title">🚨 Alert Feed</div>
+        <button class="btn btn-danger" onclick="clearAlerts()">CLEAR</button>
+      </div>
+      <div class="alerts-scroll">
+        <table class="alerts-table">
+          <thead>
+            <tr>
+              <th>TIME</th>
+              <th>TYPE</th>
+              <th>SRC IP</th>
+              <th>PROTO</th>
+              <th>SEV</th>
+            </tr>
+          </thead>
+          <tbody id="alerts-body"></tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- Attack Types -->
+    <div class="panel">
+      <div class="panel-header">
+        <div class="panel-title">📊 Attack Distribution</div>
+      </div>
+      <div class="panel-body">
+        <canvas id="type-canvas"></canvas>
+      </div>
+    </div>
+
+  </div>
+
+</div>
+
+<!-- ── Scripts ── -->
+<script>
+const API = 'http://localhost:5000/api';
+let trafficHistory = Array(30).fill(0);
+let attackCounts = {};
+let lastAlertId = 0;
+let flashTimer = null;
+
+// ── Clock ──
+function updateClock() {
+  document.getElementById('clock').textContent = new Date().toLocaleTimeString('en-GB');
+}
+setInterval(updateClock, 1000);
+updateClock();
+
+// ── Format bytes ──
+function fmtBytes(b) {
+  if (b > 1e9) return (b/1e9).toFixed(1)+' GB';
+  if (b > 1e6) return (b/1e6).toFixed(1)+' MB';
+  if (b > 1e3) return (b/1e3).toFixed(1)+' KB';
+  return b+' B';
+}
+
+// ── Traffic Canvas ──
+const tCanvas = document.getElementById('traffic-canvas');
+const tCtx = tCanvas.getContext('2d');
+
+function drawTraffic() {
+  const w = tCanvas.parentElement.offsetWidth - 36;
+  const h = 140;
+  tCanvas.width = w; tCanvas.height = h;
+
+  tCtx.clearRect(0,0,w,h);
+
+  // Grid lines
+  tCtx.strokeStyle = 'rgba(13,32,53,0.8)';
+  tCtx.lineWidth = 1;
+  for (let i=0;i<5;i++) {
+    const y = (h/4)*i;
+    tCtx.beginPath(); tCtx.moveTo(0,y); tCtx.lineTo(w,y); tCtx.stroke();
+  }
+
+  if (trafficHistory.every(v=>v===0)) return;
+
+  const max = Math.max(...trafficHistory, 1);
+  const step = w / (trafficHistory.length - 1);
+
+  // Gradient fill
+  const grad = tCtx.createLinearGradient(0,0,0,h);
+  grad.addColorStop(0,'rgba(0,255,65,0.3)');
+  grad.addColorStop(1,'rgba(0,255,65,0)');
+  tCtx.fillStyle = grad;
+  tCtx.beginPath();
+  tCtx.moveTo(0, h);
+  trafficHistory.forEach((v,i) => {
+    const x = i*step;
+    const y = h - (v/max)*(h-10) - 5;
+    i===0 ? tCtx.lineTo(x,y) : tCtx.lineTo(x,y);
+  });
+  tCtx.lineTo(w,h); tCtx.closePath(); tCtx.fill();
+
+  // Line
+  tCtx.strokeStyle = '#00ff41';
+  tCtx.lineWidth = 2;
+  tCtx.shadowColor = '#00ff41';
+  tCtx.shadowBlur = 8;
+  tCtx.beginPath();
+  trafficHistory.forEach((v,i) => {
+    const x = i*step;
+    const y = h - (v/max)*(h-10) - 5;
+    i===0 ? tCtx.moveTo(x,y) : tCtx.lineTo(x,y);
+  });
+  tCtx.stroke();
+  tCtx.shadowBlur = 0;
+}
+
+// ── Attack Types Canvas ──
+const atCanvas = document.getElementById('type-canvas');
+const atCtx = atCanvas.getContext('2d');
+const AT_COLORS = ['#00ff41','#ff1744','#39ff14','#ffc107','#ff6f00','#8b5cf6','#ec4899'];
+
+function drawAttackTypes() {
+  const w = atCanvas.parentElement.offsetWidth - 36;
+  const h = 200;
+  atCanvas.width = w; atCanvas.height = h;
+  atCtx.clearRect(0,0,w,h);
+
+  const entries = Object.entries(attackCounts);
+  if (!entries.length) {
+    atCtx.fillStyle = 'rgba(61,100,120,0.4)';
+    atCtx.font = '13px Share Tech Mono';
+    atCtx.textAlign = 'center';
+    atCtx.fillText('No attacks detected yet...', w/2, h/2);
+    return;
+  }
+
+  entries.sort((a,b)=>b[1]-a[1]);
+  const top = entries.slice(0,6);
+  const maxVal = top[0][1];
+  const barH = 24;
+  const gap = 10;
+  const labelW = 130;
+
+  top.forEach(([name, count], i) => {
+    const y = i*(barH+gap)+10;
+    const barW = ((count/maxVal) * (w - labelW - 60));
+    const color = AT_COLORS[i % AT_COLORS.length];
+
+    // Label
+    atCtx.fillStyle = 'rgba(200,230,245,0.7)';
+    atCtx.font = '12px Share Tech Mono';
+    atCtx.textAlign = 'right';
+    atCtx.fillText(name, labelW-6, y+barH/2+4);
+
+    // Bar bg
+    atCtx.fillStyle = 'rgba(255,255,255,0.04)';
+    atCtx.beginPath();
+    atCtx.roundRect(labelW, y, w-labelW-55, barH, 3);
+    atCtx.fill();
+
+    // Bar fill
+    atCtx.fillStyle = color;
+    atCtx.shadowColor = color;
+    atCtx.shadowBlur = 6;
+    atCtx.beginPath();
+    atCtx.roundRect(labelW, y, Math.max(barW,4), barH, 3);
+    atCtx.fill();
+    atCtx.shadowBlur = 0;
+
+    // Count
+    atCtx.fillStyle = color;
+    atCtx.font = '11px Share Tech Mono';
+    atCtx.textAlign = 'left';
+    atCtx.fillText(count, labelW + Math.max(barW,4) + 8, y+barH/2+4);
+  });
+}
+
+// ── Flash notification ──
+function showFlash(alert) {
+  const el = document.getElementById('flash');
+  document.getElementById('flash-body').textContent =
+    `${alert.type} from ${alert.src_ip}`;
+  el.style.display = 'block';
+  if (flashTimer) clearTimeout(flashTimer);
+  flashTimer = setTimeout(()=>{ el.style.display='none'; }, 4000);
+}
+
+// ── Render alerts ──
+function renderAlerts(data) {
+  const tbody = document.getElementById('alerts-body');
+  tbody.innerHTML = '';
+  data.forEach(a => {
+    const tr = document.createElement('tr');
+    tr.className = 'alert-row';
+    tr.innerHTML = `
+      <td>${a.timestamp}</td>
+      <td>${a.type}</td>
+      <td>${a.src_ip}</td>
+      <td><span class="proto-tag">${a.protocol}</span></td>
+      <td><span class="severity-badge sev-${a.severity}">${a.severity}</span></td>
+    `;
+    tbody.appendChild(tr);
+  });
+}
+
+// ── Fetch stats ──
+async function fetchStats() {
+  try {
+    const r = await fetch(`${API}/stats`);
+    const d = await r.json();
+
+    document.getElementById('stat-packets').textContent =
+      d.traffic.total_packets.toLocaleString();
+    document.getElementById('stat-alerts').textContent = d.alert_count;
+    document.getElementById('stat-critical').textContent = d.critical_count;
+    document.getElementById('stat-bytes').textContent = fmtBytes(d.traffic.bytes_total);
+
+    const pd = d.protocol_distribution;
+    ['tcp','udp','icmp','other'].forEach(p => {
+      const pct = pd[p.toUpperCase()] || 0;
+      document.getElementById(`pct-${p}`).textContent = pct+'%';
+      document.getElementById(`bar-${p}`).style.width = pct+'%';
+    });
+  } catch(e) { /* backend not connected */ }
+}
+
+// ── Fetch timeline ──
+async function fetchTimeline() {
+  try {
+    const r = await fetch(`${API}/timeline`);
+    const d = await r.json();
+    if (d.length) {
+      trafficHistory = d.map(p => p.packets);
+      while (trafficHistory.length < 30) trafficHistory.unshift(0);
+    } else {
+      // demo mode
+      trafficHistory.shift();
+      trafficHistory.push(Math.floor(Math.random()*300+50));
+    }
+    drawTraffic();
+  } catch(e) {
+    // demo mode when backend offline
+    trafficHistory.shift();
+    trafficHistory.push(Math.floor(Math.random()*300+50));
+    drawTraffic();
+  }
+}
+
+// ── Fetch alerts ──
+async function fetchAlerts() {
+  try {
+    const r = await fetch(`${API}/alerts`);
+    const data = await r.json();
+    renderAlerts(data);
+
+    // New critical alert notification
+    if (data.length && data[0].id !== lastAlertId) {
+      if (data[0].severity === 'CRITICAL' || data[0].severity === 'HIGH') {
+        showFlash(data[0]);
+      }
+      lastAlertId = data[0].id;
+      // Count attack types
+      data.forEach(a => {
+        attackCounts[a.type] = (attackCounts[a.type]||0) + 1;
+      });
+      // Normalize to alert list
+      attackCounts = {};
+      data.forEach(a => { attackCounts[a.type] = (attackCounts[a.type]||0)+1; });
+      drawAttackTypes();
+    }
+  } catch(e) {
+    // demo alerts when backend offline
+    injectDemoAlerts();
+  }
+}
+
+// ── Demo mode (no backend) ──
+const DEMO_TYPES = ['Port Scan','DoS Attack','SYN Flood','Brute Force','ICMP Flood'];
+const DEMO_SEV   = ['CRITICAL','HIGH','MEDIUM','LOW'];
+const DEMO_IPS   = ['192.168.1.45','10.0.0.23','172.16.0.88','45.33.32.156','203.0.113.7'];
+let demoAlerts = [];
+let demoId = 0;
+
+function injectDemoAlerts() {
+  if (Math.random() > 0.4) {
+    demoId++;
+    const type = DEMO_TYPES[Math.floor(Math.random()*DEMO_TYPES.length)];
+    const sev  = DEMO_SEV[Math.floor(Math.random()*DEMO_SEV.length)];
+    const ip   = DEMO_IPS[Math.floor(Math.random()*DEMO_IPS.length)];
+    const a = {id:demoId, type, src_ip:ip, dst_ip:'192.168.1.1',
+      protocol:['TCP','UDP','ICMP'][Math.floor(Math.random()*3)],
+      severity:sev, timestamp:new Date().toLocaleTimeString('en-GB')};
+    demoAlerts.unshift(a);
+    demoAlerts = demoAlerts.slice(0,30);
+    if (sev==='CRITICAL'||sev==='HIGH') showFlash(a);
+    attackCounts[type] = (attackCounts[type]||0)+1;
+    drawAttackTypes();
+    renderAlerts(demoAlerts);
+    document.getElementById('stat-alerts').textContent = demoAlerts.length;
+    const crit = demoAlerts.filter(x=>x.severity==='CRITICAL').length;
+    document.getElementById('stat-critical').textContent = crit;
+  }
+}
+
+// ── Demo stats ──
+let demoPackets = 0;
+let demoBytes = 0;
+function demoStats() {
+  demoPackets += Math.floor(Math.random()*400+80);
+  demoBytes   += Math.floor(Math.random()*500000+50000);
+  document.getElementById('stat-packets').textContent = demoPackets.toLocaleString();
+  document.getElementById('stat-bytes').textContent = fmtBytes(demoBytes);
+  const tcp=Math.floor(Math.random()*20+50);
+  const udp=Math.floor(Math.random()*15+25);
+  const icmp=Math.floor(100-tcp-udp-5);
+  ['tcp','udp','icmp','other'].forEach((p,i)=>{
+    const v=[tcp,udp,icmp,5][i];
+    document.getElementById(`pct-${p}`).textContent=v+'%';
+    document.getElementById(`bar-${p}`).style.width=v+'%';
+  });
+}
+
+// ── Clear alerts ──
+async function clearAlerts() {
+  try { await fetch(`${API}/clear`,{method:'POST'}); } catch(e){}
+  demoAlerts=[];
+  attackCounts={};
+  document.getElementById('alerts-body').innerHTML='';
+  drawAttackTypes();
+}
+
+// ── Init ──
+drawTraffic();
+drawAttackTypes();
+
+// Polling
+setInterval(()=>{ fetchStats(); demoStats(); }, 2000);
+setInterval(fetchTimeline, 1000);
+setInterval(fetchAlerts, 2000);
+
+fetchStats();
+fetchTimeline();
+fetchAlerts();
+</script>
+</body>
+</html>

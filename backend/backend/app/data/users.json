@@ -1,0 +1,62 @@
+[
+  {
+    "id": "2431aa64-132c-492e-a3ae-722833e825bc",
+    "name": "Dalal Test",
+    "email": "dalal@test.com",
+    "password_hash": "$2b$12$NeTwMIpoSn/CjxB8n41FfuYxeAkVuoi260Lkrbhb9wnuTOQlqnaOG",
+    "role": "organization",
+    "organization_name": "Wa3eny Demo Org",
+    "created_at": "2026-07-09 13:24:47.414845"
+  },
+  {
+    "id": "bfa87616-906a-46ab-8c43-ca84d5f79009",
+    "name": "Test User",
+    "email": "test@example.com",
+    "password_hash": "$2b$12$ijk5P8vdO0abPua9SlwykeB0Ey8wUbm1M8ucIjnD8MaMNWC3ZufbO",
+    "role": "individual",
+    "organization_name": null,
+    "created_at": "2026-07-09 13:44:49.655089"
+  },
+  {
+    "id": "152263b9-986d-4fda-8820-b084895260d0",
+    "name": "Mariam Gadelrab",
+    "email": "mariam.gadelrab2003@gmail.com",
+    "password_hash": "$2b$12$92wq2KvI630ojjVQIAmSbezSpLCCyKVLuGjWaqN.gIYib73nnJMTy",
+    "role": "organization_admin",
+    "organization_name": null,
+    "organization_id": null,
+    "created_at": "2026-07-09 19:22:26.072977"
+  },
+  {
+    "id": "5189f8b7-c804-4757-8198-44e4ead7c592",
+    "name": "Mariam Gadelrab",
+    "email": "mam501542@gu.edu.eg",
+    "password_hash": "$2b$12$JLoKlJ.X/50yHv86fPUfsO0dlkhzbBANfIOCwhkFm5YoUXJOF89.u",
+    "role": "individual",
+    "organization_name": null,
+    "organization_id": null,
+    "created_at": "2026-07-09 19:25:42.932653"
+  },
+  {
+    "id": "48643723-44b5-46bb-9483-68dddc591362",
+    "name": "Ahmed Gadelrab",
+    "email": "r.ahmed.m2006@gmail.com",
+    "password_hash": "$2b$12$ueXnxE8DasE722/1noVylOBA4KMh0kHf4A.fte4ZOO9mztgDEmSQO",
+    "role": "organization_admin",
+    "organization_name": "Ashghal",
+    "organization_id": "44e8a390-4e47-4c82-923c-b55d51becfbd",
+    "created_at": "2026-07-10 10:05:11.440309"
+  },
+  {
+    "id": "6ff2fd34-2897-489f-b15c-77a14fc87abf",
+    "name": "Malak",
+    "email": "m.ahmed@gmail.com",
+    "password_hash": "$2b$12$4TsrkdRa1.XFDGypxrrh2upDdjFksNt885ZJf32IJMSWWnWj0Caqi",
+    "role": "employee",
+    "organization_name": "Ashghal",
+    "organization_id": "44e8a390-4e47-4c82-923c-b55d51becfbd",
+    "organization_code": "ORG-PONOR4",
+    "department": "Accounting",
+    "created_at": "2026-07-10 12:38:50.840551"
+  }
+]
